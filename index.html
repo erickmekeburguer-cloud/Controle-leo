@@ -113,7 +113,7 @@
     <h3>Visualização / PDF</h3>
     <button data-view="funcionarios"><span class="ico">👥</span><span class="txt">LISTA DE FUNCIONÁRIOS</span></button>
     <button data-view="youpoints"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
-    <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS</span></button>
+    <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS (GERAL)</span></button>
     <button data-view="produtivo"><span class="ico">⏱️</span><span class="txt">TEMPO PRODUTIVO</span></button>
     <button data-view="bh"><span class="ico">⚖️</span><span class="txt">CONTROLE BH</span></button>
     <button data-view="indicadores"><span class="ico">📈</span><span class="txt">CONTROLE INDICADORES</span></button>
@@ -131,7 +131,7 @@
       <div class="mgmt-toolbar">
         <select id="mgmtSelectTable">
           <option value="funcionarios">Funcionários (Integrado)</option>
-          <option value="abs">Somente ABS</option>
+          <option value="abs">Somente ABS (Mensal Geral)</option>
           <option value="youpoints">Youpoints (Avulso)</option>
           <option value="produtivo">Tempo Produtivo (Avulso)</option>
           <option value="bh">Controle BH (Avulso)</option>
@@ -173,7 +173,7 @@
 
     <section class="view" id="view-abs">
       <div class="page-head">
-        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado.</p></div>
+        <div><h2>SOMENTE ABS (GERAL)</h2><p>Absenteísmo mensal consolidado.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-abs', 'ABS')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-abs">
@@ -233,7 +233,7 @@
     <div class="modal-body">
       <div class="integrated-tabs" id="modalTabs">
         <button class="active" data-mtab="dados-basicos">1. Dados Básicos</button>
-        <button data-mtab="youpoints">2. Youpoints</button>
+        <button data-mtab="youpoints">2. Youpoints (ABS)</button>
         <button data-mtab="produtivo">3. Tempo Produtivo</button>
         <button data-mtab="indicadores">4. Indicadores</button>
         <button data-mtab="bh">5. Banco de Horas</button>
@@ -247,7 +247,7 @@
   </div>
 </div>
 
-<!-- MODAL DE CONFIGURAÇÕES GLOBAIS (APENAS APRESENTAÇÕES) -->
+<!-- MODAL DE CONFIGURAÇÕES GLOBAIS -->
 <div class="modal-back" id="modalConfigBack">
   <div class="modal">
     <div class="modal-head">
@@ -450,7 +450,7 @@ function gerarPDF(tabelaId, nomeArquivo) {
 function applyAdminVisibility(){
   $('#btnLogin').textContent = isAdmin ? '🔓 Sair ADM' : '🔒 Área ADM';
   $('#btnConfigGlobais').style.display = isAdmin ? 'inline-flex' : 'none';
-  renderGerenciarView(); // Atualiza a tabela central para mostrar/esconder coluna de ações
+  renderGerenciarView();
 }
 
 $('#btnLogin').addEventListener('click', ()=>{
@@ -500,12 +500,13 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
     </div>
     <div class="tab-content" id="tab-youpoints">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints.</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints e o ABS individual.</p>
       <div class="form-grid">
         ${fieldRow('Agente','agente',yp.agente || func.nome)}
         ${fieldRow('ABS','abs',yp.abs,'number','step="any"')}
         ${fieldRow('Tempo Logado','logado',yp.logado,'number','step="any"')}
         ${fieldRow('Tempo Produtivo','produtivo',yp.produtivo,'number','step="any"')}
+        ${fieldRow('Qualidade','qualidade',yp.qualidade)}
         ${fieldRow('Tabulação N/A','tabulacao',yp.tabulacao,'number','step="any"')}
         ${fieldRow('Transf. Pesquisa','transf',yp.transf,'number','step="any"')}
       </div>
@@ -569,53 +570,6 @@ function fieldRow(label, name, val, type='text', extra=''){
     <input type="${type}" data-field="${name}" value="${val!==undefined && val!==null ? String(val).replace(/"/g,'&quot;') : ''}" ${extra} /></div>`;
 }
 
-$('#modalSave').addEventListener('click', async ()=>{
-  const btn = $('#modalSave');
-  btn.textContent = 'Salvando tudo...'; btn.disabled = true;
-  
-  const data = {};
-  $$('#modalFormContainer [data-field]').forEach(inp=>{
-    let v = inp.value;
-    if(inp.type === 'number'){ v = v === '' ? '' : Number(v); }
-    data[inp.dataset.field] = v;
-  });
-
-  try {
-    const funcPayload = { nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete };
-    if(integratedCtx.idFuncionario) funcPayload.id = integratedCtx.idFuncionario;
-    await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(funcPayload) });
-
-    if (data.agente) {
-      const ypPayload = { agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, tabulacao: data.tabulacao, transf: data.transf };
-      if(data.yp_id) ypPayload.id = data.yp_id;
-      await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) });
-    }
-    if (data.data && data.prod_matricula) {
-      const prodPayload = { data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct };
-      if(data.prod_id) prodPayload.id = data.prod_id;
-      await fetch(`${API_URL}/produtivo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prodPayload) });
-    }
-    if (data.ind_matricula) {
-      const indPayload = { matricula: data.ind_matricula, colaborador: data.colaborador, atendidas: data.atendidas, quartil: data.quartil, csat: data.csat };
-      if(data.ind_id) indPayload.id = data.ind_id;
-      await fetch(`${API_URL}/indicadores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(indPayload) });
-    }
-    if (data.bh_matricula || data.saldoNeg || data.saldoPos) {
-      const bhPayload = { matricula: data.bh_matricula, colaborador: data.bh_colaborador, saldoNeg: data.saldoNeg, saldoPos: data.saldoPos };
-      if(data.bh_id) bhPayload.id = data.bh_id;
-      await fetch(`${API_URL}/bh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bhPayload) });
-    }
-
-    await carregarDadosDoBanco();
-    closeModal();
-    toast('Todos os dados foram salvos!');
-  } catch (err) {
-    toast('Erro ao salvar integrado.', true);
-  } finally {
-    btn.textContent = 'Salvar Tudo na Nuvem'; btn.disabled = false;
-  }
-});
-
 /* =================== MODAL PADRÃO (PARA OUTRAS TABELAS) =================== */
 let standardCtx = { table: null, id: null };
 
@@ -640,11 +594,11 @@ function openStandardModal(table, id) {
     </div>
   `;
   
-  $$('#modalTabs').forEach(t => t.style.display = 'none'); // Esconde as abas do integrado
+  $$('#modalTabs').forEach(t => t.style.display = 'none');
   $('#modalBack').classList.add('open');
 }
 
-// Sobrescreve o botão salvar para lidar com os dois modais
+// Lógica de Salvar Unificada
 $('#modalSave').onclick = async function() {
   const btn = $('#modalSave');
   btn.textContent = 'Salvando...'; btn.disabled = true;
@@ -658,16 +612,14 @@ $('#modalSave').onclick = async function() {
 
   try {
     if (standardCtx.table) {
-      // Salvamento Padrão
       if (standardCtx.id) data.id = standardCtx.id;
       await fetch(`${API_URL}/${standardCtx.table}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     } else {
-      // Salvamento Integrado (já estava no código acima)
       const funcPayload = { nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete };
       if(integratedCtx.idFuncionario) funcPayload.id = integratedCtx.idFuncionario;
       await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(funcPayload) });
 
-      if (data.agente) { const ypPayload = { agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, tabulacao: data.tabulacao, transf: data.transf }; if(data.yp_id) ypPayload.id = data.yp_id; await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) }); }
+      if (data.agente) { const ypPayload = { agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, qualidade: data.qualidade, tabulacao: data.tabulacao, transf: data.transf }; if(data.yp_id) ypPayload.id = data.yp_id; await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) }); }
       if (data.data && data.prod_matricula) { const prodPayload = { data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct }; if(data.prod_id) prodPayload.id = data.prod_id; await fetch(`${API_URL}/produtivo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prodPayload) }); }
       if (data.ind_matricula) { const indPayload = { matricula: data.ind_matricula, colaborador: data.colaborador, atendidas: data.atendidas, quartil: data.quartil, csat: data.csat }; if(data.ind_id) indPayload.id = data.ind_id; await fetch(`${API_URL}/indicadores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(indPayload) }); }
       if (data.bh_matricula || data.saldoNeg || data.saldoPos) { const bhPayload = { matricula: data.bh_matricula, colaborador: data.bh_colaborador, saldoNeg: data.saldoNeg, saldoPos: data.saldoPos }; if(data.bh_id) bhPayload.id = data.bh_id; await fetch(`${API_URL}/bh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bhPayload) }); }
@@ -681,11 +633,11 @@ $('#modalSave').onclick = async function() {
   } finally {
     btn.textContent = 'Salvar'; btn.disabled = false;
     standardCtx = { table: null, id: null };
-    $$('#modalTabs').forEach(t => t.style.display = 'flex'); // Restaura abas
+    $$('#modalTabs').forEach(t => t.style.display = 'flex');
   }
 };
 
-/* =================== MODAL CONFIGURAÇÕES GLOBAIS (APENAS APRESENTAÇÕES) =================== */
+/* =================== MODAL CONFIGURAÇÕES GLOBAIS =================== */
 $('#btnConfigGlobais').addEventListener('click', () => {
   if(!isAdmin) return;
   const apresHTML = DB.apresentacoes.map(r => `
