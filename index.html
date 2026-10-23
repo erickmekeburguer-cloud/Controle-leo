@@ -4,45 +4,36 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>EQUIPE LEO GERAL — Painel de Indicadores</title>
+<!-- Biblioteca para gerar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root{
-    --brand:#0f3d5e;
-    --brand-2:#1b6ca8;
-    --accent:#e8a020;
-    --bg:#f4f7fa;
-    --card:#ffffff;
-    --text:#1e2b36;
-    --muted:#6b7c8c;
-    --border:#dce4ec;
-    --ok:#1e8e5a;
-    --warn:#c0392b;
-    --radius:10px;
-    --shadow:0 2px 8px rgba(15,61,94,.08);
+    --brand:#0f3d5e; --brand-2:#1b6ca8; --accent:#e8a020;
+    --bg:#f4f7fa; --card:#ffffff; --text:#1e2b36; --muted:#6b7c8c;
+    --border:#dce4ec; --ok:#1e8e5a; --warn:#c0392b;
+    --radius:10px; --shadow:0 2px 8px rgba(15,61,94,.08);
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
   header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:42px;height:42px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand);font-size:18px;}
-  .brand h1{font-size:1.15rem;margin:0;font-weight:700;letter-spacing:.3px}
-  .brand small{display:block;font-size:.72rem;opacity:.85;font-weight:400}
+  .brand h1{font-size:1.15rem;margin:0;font-weight:700;}
   .header-actions{display:flex;align-items:center;gap:10px}
   .btn{border:none;cursor:pointer;border-radius:8px;padding:9px 16px;font-size:.85rem;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:var(--accent);color:var(--brand)}
-  .btn-primary:hover{filter:brightness(1.08)}
   .btn-ghost{background:rgba(255,255,255,.15);color:#fff}
   .btn-ghost:hover{background:rgba(255,255,255,.25)}
   .btn-sm{padding:6px 12px;font-size:.78rem}
   .btn-danger{background:#fdecea;color:var(--warn)}
-  .btn-danger:hover{background:#fbd9d4}
   .btn-ok{background:#e6f6ee;color:var(--ok)}
-  .btn-ok:hover{background:#d3efe1}
+  .btn-pdf{background:#e8f1fb;color:var(--brand-2)}
   .layout{display:flex;min-height:calc(100vh - 70px)}
   nav.sidebar{width:250px;background:var(--card);border-right:1px solid var(--border);padding:18px 12px;flex-shrink:0;overflow-y:auto;}
   nav.sidebar h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:16px 10px 6px;font-weight:700;}
   nav.sidebar button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:10px 12px;border-radius:8px;color:var(--text);font-size:.88rem;font-weight:500;margin-bottom:2px;transition:.12s;}
   nav.sidebar button:hover{background:#eef4f9}
-  nav.sidebar button.active{background:var(--brand);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(15,61,94,.25);}
+  nav.sidebar button.active{background:var(--brand);color:#fff;font-weight:600;}
   nav.sidebar button .ico{font-size:1rem;width:20px;text-align:center}
   main.content{flex:1;padding:26px 30px;overflow-x:auto}
   .view{display:none;animation:fade .25s ease}
@@ -51,6 +42,7 @@
   .page-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
   .page-head h2{margin:0;font-size:1.4rem;color:var(--brand)}
   .page-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+  .actions-top{display:flex;gap:8px}
   .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
   .kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--brand-2);}
   .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
@@ -62,15 +54,12 @@
   thead th{background:#eef4f9;color:var(--brand);text-align:left;padding:11px 12px;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;}
   tbody td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
   tbody tr:hover{background:#f7fbfe}
-  tbody tr:last-child td{border-bottom:none}
   td.num{font-variant-numeric:tabular-nums;text-align:right}
-  .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700;}
-  .tag.q1{background:#e6f6ee;color:var(--ok)}
-  .tag.q2{background:#e8f1fb;color:var(--brand-2)}
-  .tag.q3{background:#fdf3e2;color:var(--accent)}
-  .tag.q4{background:#fdecea;color:var(--warn)}
   .neg{color:var(--warn);font-weight:600}
   .pos{color:var(--ok);font-weight:600}
+  .star{cursor:pointer;font-size:1.2rem;color:#ccc;transition:.2s}
+  .star.active{color:#f1c40f}
+  .reminder-box{background:#fff3cd;color:#856404;padding:4px 8px;border-radius:4px;font-size:.75rem;display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .modal-back{display:none;position:fixed;inset:0;background:rgba(15,32,45,.55);z-index:100;align-items:center;justify-content:center;padding:20px;}
   .modal-back.open{display:flex}
   .modal{background:var(--card);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
@@ -80,8 +69,7 @@
   .modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
   .field{margin-bottom:14px}
   .field label{display:block;font-size:.78rem;font-weight:600;margin-bottom:5px;color:var(--muted)}
-  .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;background:#fbfdff;}
-  .field input:focus,.field select:focus{outline:2px solid var(--brand-2);outline-offset:-1px}
+  .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;background:#fbfdff;}
   .toast{position:fixed;bottom:26px;right:26px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(16px);transition:.3s;z-index:200;pointer-events:none;}
   .toast.show{opacity:1;transform:none}
   .toast.err{background:var(--warn)}
@@ -100,10 +88,7 @@
 <header>
   <div class="brand">
     <div class="logo">LEO</div>
-    <div>
-      <h1>EQUIPE LEO GERAL</h1>
-      <small>Painel de Indicadores · Nuvem</small>
-    </div>
+    <div><h1>EQUIPE LEO GERAL</h1><small>Painel de Indicadores · Nuvem</small></div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar Dados</button>
@@ -113,8 +98,10 @@
 
 <div class="layout">
   <nav class="sidebar" id="sidebar">
+    <h3>RH / Equipe</h3>
+    <button data-view="funcionarios" class="active"><span class="ico">👥</span><span class="txt">FUNCIONÁRIOS</span></button>
     <h3>Indicadores</h3>
-    <button data-view="youpoints" class="active"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
+    <button data-view="youpoints"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
     <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS</span></button>
     <button data-view="produtivo"><span class="ico">⏱️</span><span class="txt">TEMPO PRODUTIVO</span></button>
     <h3>Gestão</h3>
@@ -124,14 +111,35 @@
   </nav>
 
   <main class="content" id="content">
+    
+    <!-- FUNCIONÁRIOS -->
+    <section class="view active" id="view-funcionarios">
+      <div class="page-head">
+        <div><h2>FUNCIONÁRIOS</h2><p>Gerenciamento de equipe, favoritos e lembretes.</p></div>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-funcionarios', 'Funcionarios')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="funcionarios">+ Novo Funcionário</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="tabela-funcionarios">
+        <table>
+          <thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th><th class="adm-only hidden">Ações</th></tr></thead>
+          <tbody id="tbody-funcionarios"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- YOUPOINTS -->
-    <section class="view active" id="view-youpoints">
+    <section class="view" id="view-youpoints">
       <div class="page-head">
         <div><h2>YOUPOINTS</h2><p>Indicadores de tempo logado, produtivo, tabulação e transferência.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="youpoints">+ Novo agente</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-youpoints', 'Youpoints')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="youpoints">+ Novo agente</button>
+        </div>
       </div>
       <div class="kpi-row" id="kpi-youpoints"></div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-youpoints">
         <table>
           <thead><tr><th>Agente</th><th>ABS</th><th>Tempo Logado</th><th>Tempo Produtivo</th><th>Qualidade</th><th>Tabulação N/A</th><th>Transf. Pesquisa</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-youpoints"></tbody>
@@ -143,10 +151,13 @@
     <section class="view" id="view-abs">
       <div class="page-head">
         <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="abs">+ Novo mês</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-abs', 'ABS')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="abs">+ Novo mês</button>
+        </div>
       </div>
       <div class="kpi-row" id="kpi-abs"></div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-abs">
         <table><thead><tr><th>Mês</th><th>ABS</th><th class="adm-only hidden">Ações</th></tr></thead><tbody id="tbody-abs"></tbody></table>
       </div>
     </section>
@@ -155,10 +166,13 @@
     <section class="view" id="view-produtivo">
       <div class="page-head">
         <div><h2>TEMPO PRODUTIVO</h2><p>Resultados diários por matrícula.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="produtivo">+ Novo registro</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-produtivo', 'TempoProdutivo')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="produtivo">+ Novo registro</button>
+        </div>
       </div>
       <div class="kpi-row" id="kpi-produtivo"></div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-produtivo">
         <table>
           <thead><tr><th>Data</th><th>Matrícula</th><th>Conectado</th><th>Cont. Disp.</th><th>Disponível</th><th>Cont. Ausente</th><th>Ausente</th><th>Intervalo</th><th>Refeição</th><th>Reunião</th><th>Ocupado</th><th>Treinamento</th><th>Estouro Pausas</th><th>Tempo Improd.</th><th>Tempo Prod.</th><th>% Produtivo</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-produtivo"></tbody>
@@ -170,10 +184,13 @@
     <section class="view" id="view-bh">
       <div class="page-head">
         <div><h2>CONTROLE BH</h2><p>Saldo de banco de horas.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="bh">+ Novo registro</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-bh', 'ControleBH')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="bh">+ Novo registro</button>
+        </div>
       </div>
       <div class="kpi-row" id="kpi-bh"></div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-bh">
         <table>
           <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Saldo Negativo</th><th>Prazo</th><th>Matrícula (Pos.)</th><th>Colaborador (Pos.)</th><th>Saldo Positivo</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-bh"></tbody>
@@ -185,10 +202,13 @@
     <section class="view" id="view-indicadores">
       <div class="page-head">
         <div><h2>CONTROLE INDICADORES</h2><p>Atendimentos, quartil, produtividade e CSAT.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="indicadores">+ Novo colaborador</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-indicadores', 'Indicadores')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="indicadores">+ Novo colaborador</button>
+        </div>
       </div>
       <div class="kpi-row" id="kpi-indicadores"></div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-indicadores">
         <table>
           <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Atendidas</th><th>Quartil</th><th>Dias Trab.</th><th>% Produtivo</th><th>Tp Conectado</th><th>Tp Logado</th><th>% Transf. Pesquisa</th><th>% CSAT</th><th>% Tabuladas</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-indicadores"></tbody>
@@ -200,9 +220,12 @@
     <section class="view" id="view-apresentacoes">
       <div class="page-head">
         <div><h2>APRESENTAÇÕES</h2><p>Resumo de ABS, ofensores e comparativos.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" data-add="apresentacoes">+ Novo item</button>
+        <div class="actions-top">
+          <button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-apresentacoes', 'Apresentacoes')">⬇ Baixar PDF</button>
+          <button class="btn btn-ok btn-sm adm-only hidden" data-add="apresentacoes">+ Novo item</button>
+        </div>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="tabela-apresentacoes">
         <table><thead><tr><th>Indicador</th><th>Valor</th><th class="adm-only hidden">Ações</th></tr></thead><tbody id="tbody-apresentacoes"></tbody></table>
       </div>
     </section>
@@ -212,10 +235,7 @@
 <!-- MODAL -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="modalTitle">Editar</h3>
-      <button class="btn btn-ghost btn-sm" id="modalClose" style="background:#eef4f9;color:var(--muted)">✕</button>
-    </div>
+    <div class="modal-head"><h3 id="modalTitle">Editar</h3><button class="btn btn-ghost btn-sm" id="modalClose" style="background:#eef4f9;color:var(--muted)">✕</button></div>
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" id="modalCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
@@ -223,51 +243,37 @@
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============================================================
-   CONFIGURAÇÃO DA API NO RENDER
-   ============================================================ */
-const API_URL = 'https://api-equipe.onrender.com/api'; // URL da sua API no Render
-
-let DB = { youpoints: [], abs: [], produtivo: [], bh: [], indicadores: [], apresentacoes: [] };
+const API_URL = 'https://api-equipe.onrender.com/api';
+let DB = { youpoints: [], abs: [], produtivo: [], bh: [], indicadores: [], apresentacoes: [], funcionarios: [] };
 let isAdmin = false;
-let currentView = 'youpoints';
 
-/* ============================================================
-   FUNÇÕES DE COMUNICAÇÃO COM O BANCO (MONGODB)
-   ============================================================ */
+/* =================== COMUNICAÇÃO COM A API =================== */
 async function carregarDadosDoBanco() {
-    toast('Carregando dados da nuvem (pode levar 30s se estiver hibernando)...', false, true);
+    toast('Sincronizando com a nuvem...', false, true);
     try {
-        const tabelas = ['youpoints', 'abs', 'produtivo', 'bh', 'indicadores', 'apresentacoes'];
-        
+        const tabelas = ['youpoints', 'abs', 'produtivo', 'bh', 'indicadores', 'apresentacoes', 'funcionarios'];
         for (let t of tabelas) {
             const response = await fetch(`${API_URL}/${t}`);
             if(!response.ok) throw new Error('Erro na rede');
             const dados = await response.json();
-            // Padroniza "_id" do Mongo para "id" usado no HTML
             DB[t] = dados.map(item => ({ ...item, id: item._id }));
         }
         renderAll();
-        toast('Dados atualizados com sucesso!');
+        toast('Dados atualizados!');
     } catch (err) {
         console.error(err);
-        toast('Erro de conexão. A API do Render está online?', true);
+        toast('Erro de conexão. API offline?', true);
     }
 }
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const fmtPct = v => (v===""||v===null||v===undefined) ? '—' : (Number(v)*100).toFixed(2)+'%';
 const fmtNum = v => (v===""||v===null||v===undefined) ? '—' : Number(v).toLocaleString('pt-BR');
 const safe = v => (v===""||v===null||v===undefined) ? '—' : v;
-const quartilTag = q => `<span class="tag ${String(q||'').toLowerCase()}">${q||'—'}</span>`;
 
 function toast(msg, err=false, loading=false){
   const t = $('#toast');
@@ -277,204 +283,161 @@ function toast(msg, err=false, loading=false){
   t._tm = setTimeout(()=>t.className='toast', loading ? 8000 : 3000);
 }
 
-/* ============================================================
-   NAVEGAÇÃO
-   ============================================================ */
+/* =================== NAVEGAÇÃO =================== */
 $$('#sidebar button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     $$('#sidebar button').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    currentView = btn.dataset.view;
     $$('.view').forEach(v=>v.classList.remove('active'));
-    $('#view-'+currentView).classList.add('active');
+    $('#view-'+btn.dataset.view).classList.add('active');
     renderAll();
   });
 });
 
 $('#btnRefresh').addEventListener('click', carregarDadosDoBanco);
 
-/* ============================================================
-   RENDERIZAÇÃO DAS TELAS
-   ============================================================ */
+/* =================== RENDERIZAÇÃO =================== */
 function renderAll(){
-  if(DB.youpoints) renderYoupoints();
-  if(DB.abs) renderAbs();
-  if(DB.produtivo) renderProdutivo();
-  if(DB.bh) renderBh();
-  if(DB.indicadores) renderIndicadores();
-  if(DB.apresentacoes) renderApresentacoes();
+  renderFuncionarios(); renderYoupoints(); renderAbs(); renderProdutivo();
+  renderBh(); renderIndicadores(); renderApresentacoes();
   applyAdminVisibility();
+}
+
+function renderFuncionarios(){
+  const arr = DB.funcionarios;
+  $('#tbody-funcionarios').innerHTML = arr.map(r=>`
+    <tr>
+      <td><span class="star ${r.favorito ? 'active' : ''}" onclick="toggleFavorito('${r.id}', ${r.favorito})">★</span></td>
+      <td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td>
+      <td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td>
+      <td class="adm-only hidden">
+        <button class="btn btn-ok btn-sm" data-edit="funcionarios" data-id="${r.id}">✎</button>
+        <button class="btn btn-danger btn-sm" data-del="funcionarios" data-id="${r.id}">🗑</button>
+      </td>
+    </tr>
+  `).join('') || `<tr><td colspan="6" class="empty">Nenhum funcionário cadastrado.</td></tr>`;
+}
+
+async function toggleFavorito(id, isFav){
+  if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
+  try {
+    await fetch(`${API_URL}/funcionarios`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, favorito: !isFav })
+    });
+    const f = DB.funcionarios.find(x=>x.id===id);
+    if(f) f.favorito = !isFav;
+    renderFuncionarios();
+  } catch (err) { toast('Erro ao favoritar.', true); }
 }
 
 function renderYoupoints(){
   const arr = DB.youpoints;
   const kpi = $('#kpi-youpoints');
-  if(!arr.length) { kpi.innerHTML=''; $('#tbody-youpoints').innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado na nuvem. Vá em Área ADM e adicione.</td></tr>`; return; }
-  
-  const mediaLog = arr.reduce((s,x)=>s+Number(x.logado||0),0)/arr.length;
-  const mediaProd = arr.reduce((s,x)=>s+Number(x.produtivo||0),0)/arr.length;
-  const mediaTransf = arr.reduce((s,x)=>s+Number(x.transf||0),0)/arr.length;
-  kpi.innerHTML = `
-    <div class="kpi"><div class="label">Agentes</div><div class="value">${arr.length}</div></div>
-    <div class="kpi"><div class="label">Média Tempo Logado</div><div class="value">${(mediaLog*100).toFixed(1)}%</div></div>
-    <div class="kpi ok"><div class="label">Média Tempo Produtivo</div><div class="value">${(mediaProd*100).toFixed(1)}%</div></div>
-    <div class="kpi warn"><div class="label">Média Transf. Pesquisa</div><div class="value">${(mediaTransf*100).toFixed(1)}%</div></div>
-  `;
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-youpoints').innerHTML = `<tr><td colspan="8" class="empty">Vazio.</td></tr>`; return; }
+  kpi.innerHTML = `<div class="kpi"><div class="label">Agentes</div><div class="value">${arr.length}</div></div>`;
   $('#tbody-youpoints').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td>
-      <td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="youpoints" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="youpoints" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="youpoints" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="youpoints" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
 function renderAbs(){
   const arr = DB.abs;
-  const kpi = $('#kpi-abs');
-  if(!arr.length) { kpi.innerHTML=''; $('#tbody-abs').innerHTML = `<tr><td colspan="3" class="empty">Nenhum dado.</td></tr>`; return; }
-  
-  const valid = arr.filter(x=>x.abs!=="").map(x=>Number(x.abs));
-  const media = valid.length ? (valid.reduce((a,b)=>a+b,0)/valid.length) : 0;
-  const maior = valid.length ? Math.max(...valid) : 0;
-  kpi.innerHTML = `
-    <div class="kpi"><div class="label">Meses cadastrados</div><div class="value">${arr.length}</div></div>
-    <div class="kpi ok"><div class="label">Média ABS</div><div class="value">${media.toFixed(2)}</div></div>
-    <div class="kpi warn"><div class="label">Maior ABS</div><div class="value">${maior.toFixed(2)}</div></div>
-  `;
+  if(!arr.length) { $('#kpi-abs').innerHTML=''; $('#tbody-abs').innerHTML = `<tr><td colspan="3" class="empty">Vazio.</td></tr>`; return; }
+  $('#kpi-abs').innerHTML = `<div class="kpi"><div class="label">Meses</div><div class="value">${arr.length}</div></div>`;
   $('#tbody-abs').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${r.mes}</td><td class="num">${safe(r.abs)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="abs" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="abs" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${r.mes}</td><td class="num">${safe(r.abs)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="abs" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="abs" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
 function renderProdutivo(){
   const arr = DB.produtivo;
-  const kpi = $('#kpi-produtivo');
-  if(!arr.length) { kpi.innerHTML=''; $('#tbody-produtivo').innerHTML = `<tr><td colspan="17" class="empty">Nenhum dado.</td></tr>`; return; }
-
-  const valid = arr.map(x=>Number(x.pct)).filter(v=>!isNaN(v) && v!==0);
-  const media = valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : 0;
-  const max = valid.length ? Math.max(...valid) : 0;
-  kpi.innerHTML = `
-    <div class="kpi"><div class="label">Registros</div><div class="value">${arr.length}</div></div>
-    <div class="kpi ok"><div class="label">Média % Produtivo</div><div class="value">${(media*100).toFixed(1)}%</div></div>
-    <div class="kpi warn"><div class="label">Maior % Produtivo</div><div class="value">${(max*100).toFixed(1)}%</div></div>
-  `;
+  if(!arr.length) { $('#kpi-produtivo').innerHTML=''; $('#tbody-produtivo').innerHTML = `<tr><td colspan="17" class="empty">Vazio.</td></tr>`; return; }
+  $('#kpi-produtivo').innerHTML = `<div class="kpi"><div class="label">Registros</div><div class="value">${arr.length}</div></div>`;
   $('#tbody-produtivo').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td>
-      <td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${safe(r.ausente)}</td>
-      <td>${safe(r.intervalo)}</td><td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td><td>${safe(r.ocupado)}</td>
-      <td>${safe(r.treinamento)}</td><td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td><td>${safe(r.prod)}</td>
-      <td class="num">${fmtPct(r.pct)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="produtivo" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="produtivo" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td><td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${safe(r.ausente)}</td><td>${safe(r.intervalo)}</td><td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td><td>${safe(r.ocupado)}</td><td>${safe(r.treinamento)}</td><td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td><td>${safe(r.prod)}</td><td class="num">${fmtPct(r.pct)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="produtivo" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="produtivo" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
 function renderBh(){
   const arr = DB.bh;
-  const kpi = $('#kpi-bh');
-  if(!arr.length) { kpi.innerHTML=''; $('#tbody-bh').innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado.</td></tr>`; return; }
-
-  const neg = arr.filter(x=>x.saldoNeg).length;
-  const pos = arr.filter(x=>x.saldoPos).length;
-  kpi.innerHTML = `
-    <div class="kpi warn"><div class="label">Saldos negativos</div><div class="value">${neg}</div></div>
-    <div class="kpi ok"><div class="label">Saldos positivos</div><div class="value">${pos}</div></div>
-    <div class="kpi"><div class="label">Total registros</div><div class="value">${arr.length}</div></div>
-  `;
+  if(!arr.length) { $('#kpi-bh').innerHTML=''; $('#tbody-bh').innerHTML = `<tr><td colspan="8" class="empty">Vazio.</td></tr>`; return; }
+  $('#kpi-bh').innerHTML = `<div class="kpi"><div class="label">Registros</div><div class="value">${arr.length}</div></div>`;
   $('#tbody-bh').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td>
-      <td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${safe(r.saldoPos)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="bh" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="bh" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td><td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${safe(r.saldoPos)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="bh" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="bh" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
 function renderIndicadores(){
   const arr = DB.indicadores;
-  const kpi = $('#kpi-indicadores');
-  if(!arr.length) { kpi.innerHTML=''; $('#tbody-indicadores').innerHTML = `<tr><td colspan="12" class="empty">Nenhum dado.</td></tr>`; return; }
-
-  const totalAt = arr.reduce((s,x)=>s+(Number(x.atendidas)||0),0);
-  const mediaCsat = arr.filter(x=>x.csat!=="").reduce((s,x)=>s+Number(x.csat),0) / (arr.filter(x=>x.csat!=="").length||1);
-  kpi.innerHTML = `
-    <div class="kpi"><div class="label">Colaboradores</div><div class="value">${arr.length}</div></div>
-    <div class="kpi ok"><div class="label">Total Atendidas</div><div class="value">${fmtNum(totalAt)}</div></div>
-    <div class="kpi"><div class="label">Média CSAT</div><div class="value">${(mediaCsat*100).toFixed(1)}%</div></div>
-  `;
+  if(!arr.length) { $('#kpi-indicadores').innerHTML=''; $('#tbody-indicadores').innerHTML = `<tr><td colspan="12" class="empty">Vazio.</td></tr>`; return; }
+  $('#kpi-indicadores').innerHTML = `<div class="kpi"><div class="label">Colaboradores</div><div class="value">${arr.length}</div></div>`;
   $('#tbody-indicadores').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${r.matricula}</td><td>${r.colaborador}</td><td class="num">${fmtNum(r.atendidas)}</td><td>${quartilTag(r.quartil)}</td>
-      <td class="num">${safe(r.dias)}</td><td class="num">${fmtPct(r.pctProd)}</td><td>${safe(r.tpConectado)}</td><td>${safe(r.tpLogado)}</td>
-      <td class="num">${fmtPct(r.pctTransf)}</td><td class="num">${fmtPct(r.csat)}</td><td class="num">${fmtPct(r.tabuladas)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="indicadores" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="indicadores" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${r.matricula}</td><td>${r.colaborador}</td><td class="num">${fmtNum(r.atendidas)}</td><td>${safe(r.quartil)}</td><td class="num">${safe(r.dias)}</td><td class="num">${fmtPct(r.pctProd)}</td><td>${safe(r.tpConectado)}</td><td>${safe(r.tpLogado)}</td><td class="num">${fmtPct(r.pctTransf)}</td><td class="num">${fmtPct(r.csat)}</td><td class="num">${fmtPct(r.tabuladas)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="indicadores" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="indicadores" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
 function renderApresentacoes(){
   const arr = DB.apresentacoes;
-  if(!arr.length) { $('#tbody-apresentacoes').innerHTML = `<tr><td colspan="3" class="empty">Nenhum dado.</td></tr>`; return; }
-  
+  if(!arr.length) { $('#tbody-apresentacoes').innerHTML = `<tr><td colspan="3" class="empty">Vazio.</td></tr>`; return; }
   $('#tbody-apresentacoes').innerHTML = arr.map(r=>`
-    <tr>
-      <td>${r.indicador}</td><td class="num">${safe(r.valor)}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" data-edit="apresentacoes" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="apresentacoes" data-id="${r.id}">🗑</button>
-      </td>
-    </tr>
+    <tr><td>${r.indicador}</td><td class="num">${safe(r.valor)}</td>
+    <td class="adm-only hidden"><button class="btn btn-ok btn-sm" data-edit="apresentacoes" data-id="${r.id}">✎</button><button class="btn btn-danger btn-sm" data-del="apresentacoes" data-id="${r.id}">🗑</button></td></tr>
   `).join('');
 }
 
-/* ============================================================
-   ADMIN E MODAL
-   ============================================================ */
-function applyAdminVisibility(){
-  $$('.adm-only').forEach(el=>{
-    if(isAdmin) el.classList.remove('hidden');
-    else el.classList.add('hidden');
+/* =================== GERADOR DE PDF =================== */
+function gerarPDF(tabelaId, nomeArquivo) {
+  const elemento = document.getElementById(tabelaId);
+  
+  // Criar um clone para o PDF ficar limpo (sem botões de ação se estiver logado)
+  const clone = elemento.cloneNode(true);
+  
+  // Remover colunas de ações
+  const thAcoes = clone.querySelectorAll('.adm-only');
+  thAcoes.forEach(th => th.remove());
+  
+  const tdAcoes = clone.querySelectorAll('td.adm-only');
+  tdAcoes.forEach(td => td.remove());
+
+  // Estilo temporário para o PDF
+  clone.style.background = '#fff';
+  clone.style.padding = '20px';
+  clone.style.borderRadius = '0';
+  clone.style.boxShadow = 'none';
+
+  const opt = {
+    margin:       10,
+    filename:     `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  toast('Gerando PDF...', false, true);
+  html2pdf().set(opt).from(clone).save().then(() => {
+    toast('PDF baixado com sucesso!');
+  }).catch(err => {
+    toast('Erro ao gerar PDF.', true);
   });
+}
+
+/* =================== ADMIN E MODAL =================== */
+function applyAdminVisibility(){
+  $$('.adm-only').forEach(el => isAdmin ? el.classList.remove('hidden') : el.classList.add('hidden'));
   $('#btnLogin').textContent = isAdmin ? '🔓 Sair ADM' : '🔒 Área ADM';
 }
 
 $('#btnLogin').addEventListener('click', ()=>{
-  if(isAdmin){
-    isAdmin = false;
-    applyAdminVisibility();
-    toast('Sessão ADM encerrada.');
-    return;
-  }
+  if(isAdmin){ isAdmin = false; applyAdminVisibility(); toast('Sessão ADM encerrada.'); return; }
   const pwd = prompt('Digite a senha administrativa:');
-  if(pwd === null) return;
-  if(pwd === 'admin123'){
-    isAdmin = true;
-    applyAdminVisibility();
-    toast('Bem-vindo, administrador!');
-  }else{
-    toast('Senha incorreta.', true);
-  }
+  if(pwd === 'admin123'){ isAdmin = true; applyAdminVisibility(); toast('Bem-vindo, administrador!'); }
+  else if(pwd !== null) { toast('Senha incorreta.', true); }
 });
 
 let modalCtx = {table:null, id:null};
@@ -486,37 +449,29 @@ document.addEventListener('click', e=>{
   const delBtn = e.target.closest('[data-del]');
   if(delBtn){
     if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
-    if(confirm('Deseja realmente excluir este registro do banco de dados?')){
-      excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
-    }
+    if(confirm('Deseja excluir este registro do banco?')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
     return;
   }
   
   const addBtn = e.target.closest('[data-add]');
-  if(addBtn){
-    if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
-    openModal(addBtn.dataset.add, null);
-  }
+  if(addBtn){ if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; } openModal(addBtn.dataset.add, null); }
 });
 
 async function excluirDoBanco(tabela, id) {
   try {
     const response = await fetch(`${API_URL}/${tabela}/${id}`, { method: 'DELETE' });
-    if(!response.ok) throw new Error('Erro ao deletar');
+    if(!response.ok) throw new Error('Erro');
     DB[tabela] = DB[tabela].filter(x => x.id !== id);
-    renderAll();
-    toast('Registro excluído do banco!');
-  } catch (err) {
-    toast('Erro ao excluir.', true);
-  }
+    renderAll(); toast('Excluído com sucesso!');
+  } catch (err) { toast('Erro ao excluir.', true); }
 }
 
 function openModal(table, id){
-  if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
+  if(!isAdmin) return;
   modalCtx = {table, id};
   const isNew = id === null;
   const record = isNew ? {} : DB[table].find(x=>x.id===id) || {};
-  $('#modalTitle').textContent = (isNew?'Novo':'Editar') + ' — ' + labelOf(table);
+  $('#modalTitle').textContent = (isNew?'Novo':'Editar') + ' — ' + table.toUpperCase();
   $('#modalBody').innerHTML = fieldsOf(table, record);
   $('#modalBack').classList.add('open');
 }
@@ -526,118 +481,90 @@ $('#modalClose').addEventListener('click', closeModal);
 $('#modalCancel').addEventListener('click', closeModal);
 $('#modalBack').addEventListener('click', e=>{ if(e.target.id==='modalBack') closeModal(); });
 
-function labelOf(t){
-  return {youpoints:'YOUPOINTS', abs:'SOMENTE ABS', produtivo:'TEMPO PRODUTIVO', bh:'CONTROLE BH', indicadores:'CONTROLE INDICADORES', apresentacoes:'APRESENTAÇÕES'}[t] || t;
-}
-
 function fieldRow(label, name, val, type='text', extra=''){
   return `<div class="field"><label>${label}</label>
     <input type="${type}" data-field="${name}" value="${val!==undefined && val!==null ? String(val).replace(/"/g,'&quot;') : ''}" ${extra} /></div>`;
 }
+function fieldArea(label, name, val){
+  return `<div class="field"><label>${label}</label>
+    <textarea data-field="${name}" rows="3">${val||''}</textarea></div>`;
+}
 
 function fieldsOf(table, r){
   switch(table){
+    case 'funcionarios': return `
+      ${fieldRow('Nome Completo','nome',r.nome)}
+      ${fieldRow('Matrícula','matricula',r.matricula)}
+      ${fieldRow('Cargo','cargo',r.cargo)}
+      ${fieldArea('Lembrete / Observação','lembrete',r.lembrete)}
+    `;
     case 'youpoints': return `
-      ${fieldRow('Agente','agente',r.agente)}
-      ${fieldRow('ABS','abs',r.abs,'number','step="any"')}
-      ${fieldRow('Tempo Logado','logado',r.logado,'number','step="any"')}
-      ${fieldRow('Tempo Produtivo','produtivo',r.produtivo,'number','step="any"')}
-      ${fieldRow('Qualidade','qualidade',r.qualidade)}
-      ${fieldRow('Tabulação N/A','tabulacao',r.tabulacao,'number','step="any"')}
+      ${fieldRow('Agente','agente',r.agente)} ${fieldRow('ABS','abs',r.abs,'number','step="any"')}
+      ${fieldRow('Tempo Logado','logado',r.logado,'number','step="any"')} ${fieldRow('Tempo Produtivo','produtivo',r.produtivo,'number','step="any"')}
+      ${fieldRow('Qualidade','qualidade',r.qualidade)} ${fieldRow('Tabulação N/A','tabulacao',r.tabulacao,'number','step="any"')}
       ${fieldRow('Transf. Pesquisa','transf',r.transf,'number','step="any"')}
     `;
-    case 'abs': return `
-      ${fieldRow('Mês','mes',r.mes)}
-      ${fieldRow('ABS','abs',r.abs,'number','step="any"')}
-    `;
+    case 'abs': return `${fieldRow('Mês','mes',r.mes)} ${fieldRow('ABS','abs',r.abs,'number','step="any"')}`;
     case 'produtivo': return `
-      ${fieldRow('Data','data',r.data)}
-      ${fieldRow('Matrícula','matricula',r.matricula)}
-      ${fieldRow('Conectado','conectado',r.conectado)}
-      ${fieldRow('Cont. Disp.','contDisp',r.contDisp,'number')}
-      ${fieldRow('Disponível','disponivel',r.disponivel)}
-      ${fieldRow('Cont. Ausente','contAusente',r.contAusente,'number')}
-      ${fieldRow('Ausente','ausente',r.ausente)}
-      ${fieldRow('Intervalo','intervalo',r.intervalo)}
-      ${fieldRow('Refeição','refeicao',r.refeicao)}
-      ${fieldRow('Reunião','reuniao',r.reuniao)}
-      ${fieldRow('Ocupado','ocupado',r.ocupado)}
-      ${fieldRow('Treinamento','treinamento',r.treinamento)}
-      ${fieldRow('Estouro Pausas','estouro',r.estouro)}
-      ${fieldRow('Tempo Improd.','improd',r.improd)}
-      ${fieldRow('Tempo Prod.','prod',r.prod)}
-      ${fieldRow('% Produtivo','pct',r.pct,'number','step="any"')}
+      ${fieldRow('Data','data',r.data)} ${fieldRow('Matrícula','matricula',r.matricula)}
+      ${fieldRow('Conectado','conectado',r.conectado)} ${fieldRow('Cont. Disp.','contDisp',r.contDisp,'number')}
+      ${fieldRow('Disponível','disponivel',r.disponivel)} ${fieldRow('Cont. Ausente','contAusente',r.contAusente,'number')}
+      ${fieldRow('Ausente','ausente',r.ausente)} ${fieldRow('Intervalo','intervalo',r.intervalo)}
+      ${fieldRow('Refeição','refeicao',r.refeicao)} ${fieldRow('Reunião','reuniao',r.reuniao)}
+      ${fieldRow('Ocupado','ocupado',r.ocupado)} ${fieldRow('Treinamento','treinamento',r.treinamento)}
+      ${fieldRow('Estouro Pausas','estouro',r.estouro)} ${fieldRow('Tempo Improd.','improd',r.improd)}
+      ${fieldRow('Tempo Prod.','prod',r.prod)} ${fieldRow('% Produtivo','pct',r.pct,'number','step="any"')}
     `;
     case 'bh': return `
-      ${fieldRow('Matrícula (Neg.)','matricula',r.matricula)}
-      ${fieldRow('Colaborador (Neg.)','colaborador',r.colaborador)}
-      ${fieldRow('Saldo Negativo','saldoNeg',r.saldoNeg)}
-      ${fieldRow('Prazo','prazo',r.prazo)}
-      ${fieldRow('Matrícula (Pos.)','matriculaPos',r.matriculaPos)}
-      ${fieldRow('Colaborador (Pos.)','colaboradorPos',r.colaboradorPos)}
+      ${fieldRow('Matrícula (Neg.)','matricula',r.matricula)} ${fieldRow('Colaborador (Neg.)','colaborador',r.colaborador)}
+      ${fieldRow('Saldo Negativo','saldoNeg',r.saldoNeg)} ${fieldRow('Prazo','prazo',r.prazo)}
+      ${fieldRow('Matrícula (Pos.)','matriculaPos',r.matriculaPos)} ${fieldRow('Colaborador (Pos.)','colaboradorPos',r.colaboradorPos)}
       ${fieldRow('Saldo Positivo','saldoPos',r.saldoPos)}
     `;
     case 'indicadores': return `
-      ${fieldRow('Matrícula','matricula',r.matricula)}
-      ${fieldRow('Colaborador','colaborador',r.colaborador)}
-      ${fieldRow('Atendidas','atendidas',r.atendidas,'number')}
-      ${fieldRow('Quartil (Q1-Q4)','quartil',r.quartil)}
-      ${fieldRow('Dias Trabalhados','dias',r.dias,'number')}
-      ${fieldRow('% Produtivo','pctProd',r.pctProd,'number','step="any"')}
-      ${fieldRow('Tp Conectado','tpConectado',r.tpConectado)}
-      ${fieldRow('Tp Logado','tpLogado',r.tpLogado)}
-      ${fieldRow('% Transf. Pesquisa','pctTransf',r.pctTransf,'number','step="any"')}
-      ${fieldRow('% CSAT','csat',r.csat,'number','step="any"')}
+      ${fieldRow('Matrícula','matricula',r.matricula)} ${fieldRow('Colaborador','colaborador',r.colaborador)}
+      ${fieldRow('Atendidas','atendidas',r.atendidas,'number')} ${fieldRow('Quartil (Q1-Q4)','quartil',r.quartil)}
+      ${fieldRow('Dias Trabalhados','dias',r.dias,'number')} ${fieldRow('% Produtivo','pctProd',r.pctProd,'number','step="any"')}
+      ${fieldRow('Tp Conectado','tpConectado',r.tpConectado)} ${fieldRow('Tp Logado','tpLogado',r.tpLogado)}
+      ${fieldRow('% Transf. Pesquisa','pctTransf',r.pctTransf,'number','step="any"')} ${fieldRow('% CSAT','csat',r.csat,'number','step="any"')}
       ${fieldRow('% Tabuladas','tabuladas',r.tabuladas,'number','step="any"')}
     `;
-    case 'apresentacoes': return `
-      ${fieldRow('Indicador','indicador',r.indicador)}
-      ${fieldRow('Valor','valor',r.valor)}
-    `;
+    case 'apresentacoes': return `${fieldRow('Indicador','indicador',r.indicador)} ${fieldRow('Valor','valor',r.valor)}`;
   }
   return '';
 }
 
 $('#modalSave').addEventListener('click', async ()=>{
   const {table, id} = modalCtx;
-  if(!table) return;
-  
   const data = {};
   $$('#modalBody [data-field]').forEach(inp=>{
     let v = inp.value;
     if(inp.type === 'number'){ v = v === '' ? '' : Number(v); }
     data[inp.dataset.field] = v;
   });
-  
-  if(id) data.id = id; // Envia o _id do Mongo para a API saber que é edição
+  if(id) data.id = id;
   
   try {
-    $('#modalSave').textContent = 'Salvando na Nuvem...';
+    $('#modalSave').textContent = 'Salvando...';
     $('#modalSave').disabled = true;
     
     const response = await fetch(`${API_URL}/${table}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+    if(!response.ok) throw new Error('Erro');
     
-    if(!response.ok) throw new Error('Erro ao salvar');
-    
-    await carregarDadosDoBanco(); // Recarrega do banco para garantir sincronia
-    closeModal();
-    toast('Registro salvo na nuvem!');
+    await carregarDadosDoBanco();
+    closeModal(); toast('Salvo na nuvem!');
   } catch (err) {
-    toast('Erro ao salvar no banco.', true);
+    toast('Erro ao salvar.', true);
   } finally {
     $('#modalSave').textContent = 'Salvar na Nuvem';
     $('#modalSave').disabled = false;
   }
 });
 
-/* ============================================================
-   INICIALIZAÇÃO
-   ============================================================ */
-// Puxa os dados da API assim que o site abre
+// Inicialização
 carregarDadosDoBanco();
 </script>
 </body>
