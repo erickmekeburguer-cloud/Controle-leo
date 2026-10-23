@@ -20,31 +20,14 @@
     --shadow:0 2px 8px rgba(15,61,94,.08);
   }
   *{box-sizing:border-box}
-  body{
-    margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--text);
-  }
-  /* ---------- HEADER ---------- */
-  header{
-    background:linear-gradient(135deg,var(--brand),var(--brand-2));
-    color:#fff;padding:14px 24px;display:flex;align-items:center;
-    justify-content:space-between;flex-wrap:wrap;gap:12px;
-    box-shadow:var(--shadow);position:sticky;top:0;z-index:50;
-  }
+  body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
   .brand{display:flex;align-items:center;gap:12px}
-  .brand .logo{
-    width:42px;height:42px;border-radius:10px;background:var(--accent);
-    display:flex;align-items:center;justify-content:center;font-weight:800;
-    color:var(--brand);font-size:18px;
-  }
+  .brand .logo{width:42px;height:42px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand);font-size:18px;}
   .brand h1{font-size:1.15rem;margin:0;font-weight:700;letter-spacing:.3px}
   .brand small{display:block;font-size:.72rem;opacity:.85;font-weight:400}
   .header-actions{display:flex;align-items:center;gap:10px}
-  .btn{
-    border:none;cursor:pointer;border-radius:8px;padding:9px 16px;
-    font-size:.85rem;font-weight:600;transition:.15s;display:inline-flex;
-    align-items:center;gap:6px;
-  }
+  .btn{border:none;cursor:pointer;border-radius:8px;padding:9px 16px;font-size:.85rem;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:var(--accent);color:var(--brand)}
   .btn-primary:hover{filter:brightness(1.08)}
   .btn-ghost{background:rgba(255,255,255,.15);color:#fff}
@@ -54,133 +37,61 @@
   .btn-danger:hover{background:#fbd9d4}
   .btn-ok{background:#e6f6ee;color:var(--ok)}
   .btn-ok:hover{background:#d3efe1}
-
-  /* ---------- LAYOUT ---------- */
   .layout{display:flex;min-height:calc(100vh - 70px)}
-  /* sidebar */
-  nav.sidebar{
-    width:250px;background:var(--card);border-right:1px solid var(--border);
-    padding:18px 12px;flex-shrink:0;overflow-y:auto;
-  }
-  nav.sidebar h3{
-    font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;
-    color:var(--muted);margin:16px 10px 6px;font-weight:700;
-  }
-  nav.sidebar button{
-    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-    background:none;border:none;cursor:pointer;padding:10px 12px;
-    border-radius:8px;color:var(--text);font-size:.88rem;font-weight:500;
-    margin-bottom:2px;transition:.12s;
-  }
+  nav.sidebar{width:250px;background:var(--card);border-right:1px solid var(--border);padding:18px 12px;flex-shrink:0;overflow-y:auto;}
+  nav.sidebar h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:16px 10px 6px;font-weight:700;}
+  nav.sidebar button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:10px 12px;border-radius:8px;color:var(--text);font-size:.88rem;font-weight:500;margin-bottom:2px;transition:.12s;}
   nav.sidebar button:hover{background:#eef4f9}
-  nav.sidebar button.active{
-    background:var(--brand);color:#fff;font-weight:600;
-    box-shadow:0 2px 6px rgba(15,61,94,.25);
-  }
+  nav.sidebar button.active{background:var(--brand);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(15,61,94,.25);}
   nav.sidebar button .ico{font-size:1rem;width:20px;text-align:center}
-
   main.content{flex:1;padding:26px 30px;overflow-x:auto}
-
-  /* ---------- VIEWS ---------- */
   .view{display:none;animation:fade .25s ease}
   .view.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-  .page-head{
-    display:flex;align-items:flex-end;justify-content:space-between;
-    flex-wrap:wrap;gap:12px;margin-bottom:20px;
-  }
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
   .page-head h2{margin:0;font-size:1.4rem;color:var(--brand)}
   .page-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
-
-  /* ---------- CARDS / KPIs ---------- */
   .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
-  .kpi{
-    background:var(--card);border-radius:var(--radius);padding:16px 18px;
-    box-shadow:var(--shadow);border-left:4px solid var(--brand-2);
-  }
+  .kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--brand-2);}
   .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
   .kpi .value{font-size:1.5rem;font-weight:700;color:var(--brand);margin-top:4px}
   .kpi.warn{border-left-color:var(--warn)}
   .kpi.ok{border-left-color:var(--ok)}
-
-  /* ---------- TABLE ---------- */
-  .table-wrap{
-    background:var(--card);border-radius:var(--radius);
-    box-shadow:var(--shadow);overflow:auto;margin-bottom:24px;
-  }
+  .table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;margin-bottom:24px;}
   table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
-  thead th{
-    background:#eef4f9;color:var(--brand);text-align:left;
-    padding:11px 12px;font-weight:700;font-size:.76rem;
-    text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
-    border-bottom:2px solid var(--border);position:sticky;top:0;
-  }
+  thead th{background:#eef4f9;color:var(--brand);text-align:left;padding:11px 12px;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;}
   tbody td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
   tbody tr:hover{background:#f7fbfe}
   tbody tr:last-child td{border-bottom:none}
   td.num{font-variant-numeric:tabular-nums;text-align:right}
-  .tag{
-    display:inline-block;padding:2px 9px;border-radius:20px;
-    font-size:.72rem;font-weight:700;
-  }
+  .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700;}
   .tag.q1{background:#e6f6ee;color:var(--ok)}
   .tag.q2{background:#e8f1fb;color:var(--brand-2)}
   .tag.q3{background:#fdf3e2;color:var(--accent)}
   .tag.q4{background:#fdecea;color:var(--warn)}
-  .pill{display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4f9;font-size:.74rem;color:var(--brand)}
   .neg{color:var(--warn);font-weight:600}
   .pos{color:var(--ok);font-weight:600}
-
-  /* ---------- EDIT MODAL ---------- */
-  .modal-back{
-    display:none;position:fixed;inset:0;background:rgba(15,32,45,.55);
-    z-index:100;align-items:center;justify-content:center;padding:20px;
-  }
+  .modal-back{display:none;position:fixed;inset:0;background:rgba(15,32,45,.55);z-index:100;align-items:center;justify-content:center;padding:20px;}
   .modal-back.open{display:flex}
-  .modal{
-    background:var(--card);border-radius:14px;max-width:560px;width:100%;
-    max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);
-  }
-  .modal-head{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:16px 20px;border-bottom:1px solid var(--border);
-  }
+  .modal{background:var(--card);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
   .modal-head h3{margin:0;font-size:1.05rem;color:var(--brand)}
   .modal-body{padding:18px 20px}
-  .modal-foot{
-    padding:14px 20px;border-top:1px solid var(--border);
-    display:flex;justify-content:flex-end;gap:10px;
-  }
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
   .field{margin-bottom:14px}
   .field label{display:block;font-size:.78rem;font-weight:600;margin-bottom:5px;color:var(--muted)}
-  .field input,.field select{
-    width:100%;padding:9px 11px;border:1px solid var(--border);
-    border-radius:8px;font-size:.88rem;font-family:inherit;background:#fbfdff;
-  }
+  .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;background:#fbfdff;}
   .field input:focus,.field select:focus{outline:2px solid var(--brand-2);outline-offset:-1px}
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-  /* ---------- TOAST ---------- */
-  .toast{
-    position:fixed;bottom:26px;right:26px;background:var(--ok);color:#fff;
-    padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:600;
-    box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(16px);
-    transition:.3s;z-index:200;pointer-events:none;
-  }
+  .toast{position:fixed;bottom:26px;right:26px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(16px);transition:.3s;z-index:200;pointer-events:none;}
   .toast.show{opacity:1;transform:none}
   .toast.err{background:var(--warn)}
-
-  /* ---------- EMPTY ---------- */
+  .toast.loading{background:var(--brand-2)}
   .empty{padding:30px;text-align:center;color:var(--muted);font-size:.9rem}
-
-  /* ---------- MOBILE ---------- */
   @media(max-width:820px){
     nav.sidebar{width:64px;padding:12px 6px}
     nav.sidebar h3,nav.sidebar button span.txt{display:none}
     nav.sidebar button{justify-content:center;padding:12px 0}
     main.content{padding:18px 14px}
-    .field-row{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -191,11 +102,11 @@
     <div class="logo">LEO</div>
     <div>
       <h1>EQUIPE LEO GERAL</h1>
-      <small>Painel de Indicadores · Julho 2026</small>
+      <small>Painel de Indicadores · Nuvem</small>
     </div>
   </div>
   <div class="header-actions">
-    <button class="btn btn-ghost btn-sm" id="btnReset">↺ Restaurar dados</button>
+    <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar Dados</button>
     <button class="btn btn-primary btn-sm" id="btnLogin">🔒 Área ADM</button>
   </div>
 </header>
@@ -213,152 +124,92 @@
   </nav>
 
   <main class="content" id="content">
-
-    <!-- ============ YOUPOINTS ============ -->
+    <!-- YOUPOINTS -->
     <section class="view active" id="view-youpoints">
       <div class="page-head">
-        <div>
-          <h2>YOUPOINTS</h2>
-          <p>Indicadores de tempo logado, produtivo, tabulação e transferência de pesquisa.</p>
-        </div>
+        <div><h2>YOUPOINTS</h2><p>Indicadores de tempo logado, produtivo, tabulação e transferência.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="youpoints">+ Novo agente</button>
       </div>
       <div class="kpi-row" id="kpi-youpoints"></div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Agente</th><th>ABS</th><th>Tempo Logado</th>
-              <th>Tempo Produtivo</th><th>Qualidade</th>
-              <th>Tabulação N/A</th><th>Transf. Pesquisa</th>
-              <th class="adm-only hidden">Ações</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Agente</th><th>ABS</th><th>Tempo Logado</th><th>Tempo Produtivo</th><th>Qualidade</th><th>Tabulação N/A</th><th>Transf. Pesquisa</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-youpoints"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ============ SOMENTE ABS ============ -->
+    <!-- SOMENTE ABS -->
     <section class="view" id="view-abs">
       <div class="page-head">
-        <div>
-          <h2>SOMENTE ABS</h2>
-          <p>Absenteísmo mensal consolidado.</p>
-        </div>
+        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="abs">+ Novo mês</button>
       </div>
       <div class="kpi-row" id="kpi-abs"></div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Mês</th><th>ABS</th><th class="adm-only hidden">Ações</th></tr>
-          </thead>
-          <tbody id="tbody-abs"></tbody>
-        </table>
+        <table><thead><tr><th>Mês</th><th>ABS</th><th class="adm-only hidden">Ações</th></tr></thead><tbody id="tbody-abs"></tbody></table>
       </div>
     </section>
 
-    <!-- ============ TEMPO PRODUTIVO ============ -->
+    <!-- TEMPO PRODUTIVO -->
     <section class="view" id="view-produtivo">
       <div class="page-head">
-        <div>
-          <h2>TEMPO PRODUTIVO</h2>
-          <p>Resultados diários por matrícula (dias 01/07 a 06/07).</p>
-        </div>
+        <div><h2>TEMPO PRODUTIVO</h2><p>Resultados diários por matrícula.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="produtivo">+ Novo registro</button>
       </div>
       <div class="kpi-row" id="kpi-produtivo"></div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Data</th><th>Matrícula</th><th>Conectado</th><th>Cont. Disp.</th>
-              <th>Disponível</th><th>Cont. Ausente</th><th>Ausente</th>
-              <th>Intervalo</th><th>Refeição</th><th>Reunião</th>
-              <th>Ocupado</th><th>Treinamento</th><th>Estouro Pausas</th>
-              <th>Tempo Improd.</th><th>Tempo Prod.</th><th>% Produtivo</th>
-              <th class="adm-only hidden">Ações</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Data</th><th>Matrícula</th><th>Conectado</th><th>Cont. Disp.</th><th>Disponível</th><th>Cont. Ausente</th><th>Ausente</th><th>Intervalo</th><th>Refeição</th><th>Reunião</th><th>Ocupado</th><th>Treinamento</th><th>Estouro Pausas</th><th>Tempo Improd.</th><th>Tempo Prod.</th><th>% Produtivo</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-produtivo"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ============ CONTROLE BH ============ -->
+    <!-- CONTROLE BH -->
     <section class="view" id="view-bh">
       <div class="page-head">
-        <div>
-          <h2>CONTROLE BH</h2>
-          <p>Saldo de banco de horas — negativo e positivo.</p>
-        </div>
+        <div><h2>CONTROLE BH</h2><p>Saldo de banco de horas.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="bh">+ Novo registro</button>
       </div>
       <div class="kpi-row" id="kpi-bh"></div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Matrícula</th><th>Colaborador</th><th>Saldo Negativo</th>
-              <th>Prazo</th><th>Matrícula (Pos.)</th><th>Colaborador (Pos.)</th>
-              <th>Saldo Positivo</th><th class="adm-only hidden">Ações</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Saldo Negativo</th><th>Prazo</th><th>Matrícula (Pos.)</th><th>Colaborador (Pos.)</th><th>Saldo Positivo</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-bh"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ============ CONTROLE INDICADORES ============ -->
+    <!-- INDICADORES -->
     <section class="view" id="view-indicadores">
       <div class="page-head">
-        <div>
-          <h2>CONTROLE INDICADORES</h2>
-          <p>Atendimentos, quartil, produtividade, CSAT e tabulações.</p>
-        </div>
+        <div><h2>CONTROLE INDICADORES</h2><p>Atendimentos, quartil, produtividade e CSAT.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="indicadores">+ Novo colaborador</button>
       </div>
       <div class="kpi-row" id="kpi-indicadores"></div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Matrícula</th><th>Colaborador</th><th>Atendidas</th>
-              <th>Quartil</th><th>Dias Trab.</th><th>% Produtivo</th>
-              <th>Tp Conectado</th><th>Tp Logado</th>
-              <th>% Transf. Pesquisa</th><th>% CSAT</th><th>% Tabuladas</th>
-              <th class="adm-only hidden">Ações</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Atendidas</th><th>Quartil</th><th>Dias Trab.</th><th>% Produtivo</th><th>Tp Conectado</th><th>Tp Logado</th><th>% Transf. Pesquisa</th><th>% CSAT</th><th>% Tabuladas</th><th class="adm-only hidden">Ações</th></tr></thead>
           <tbody id="tbody-indicadores"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ============ APRESENTAÇÕES ============ -->
+    <!-- APRESENTAÇÕES -->
     <section class="view" id="view-apresentacoes">
       <div class="page-head">
-        <div>
-          <h2>APRESENTAÇÕES</h2>
-          <p>Resumo de ABS, ofensores e comparativos.</p>
-        </div>
+        <div><h2>APRESENTAÇÕES</h2><p>Resumo de ABS, ofensores e comparativos.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" data-add="apresentacoes">+ Novo item</button>
       </div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Indicador</th><th>Valor</th><th class="adm-only hidden">Ações</th></tr>
-          </thead>
-          <tbody id="tbody-apresentacoes"></tbody>
-        </table>
+        <table><thead><tr><th>Indicador</th><th>Valor</th><th class="adm-only hidden">Ações</th></tr></thead><tbody id="tbody-apresentacoes"></tbody></table>
       </div>
     </section>
-
   </main>
 </div>
 
-<!-- ============ MODAL ============ -->
+<!-- MODAL -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
     <div class="modal-head">
@@ -368,7 +219,7 @@
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" id="modalCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
-      <button class="btn btn-primary btn-sm" id="modalSave">Salvar</button>
+      <button class="btn btn-primary btn-sm" id="modalSave">Salvar na Nuvem</button>
     </div>
   </div>
 </div>
@@ -377,139 +228,35 @@
 
 <script>
 /* ============================================================
-   DADOS BASE (extraídos da planilha)
+   CONFIGURAÇÃO DA API NO RENDER
    ============================================================ */
-const SEED = {
-  youpoints: [
-    {id:1, agente:"Adriele Souza Brito", abs:0, logado:1.0095957284515635, produtivo:0.9629538013823209, qualidade:"", tabulacao:0.03, transf:0.8570019723865878},
-    {id:2, agente:"Ana Lucia Melo Da Mota", abs:0, logado:1.0223190089043748, produtivo:0.9710741395636758, qualidade:"", tabulacao:0.07, transf:0.5945626477541371},
-    {id:3, agente:"Berenice Peixoto Rios", abs:0, logado:1.0857177033492824, produtivo:0.9902663701543234, qualidade:"", tabulacao:0.03, transf:0.9602053915275995},
-    {id:4, agente:"Bruna Silva Escobar", abs:0, logado:1.0381944444444444, produtivo:0.9905703146250794, qualidade:"", tabulacao:0.22, transf:0.45445240532241554},
-    {id:5, agente:"Claudia Aparecida Barbosa Marques", abs:0, logado:0.990928540864356, produtivo:0.9687040303408465, qualidade:"", tabulacao:0.03, transf:0.975254730713246},
-    {id:6, agente:"Dan Santos Rocha Da Silva", abs:0.36363636363636365, logado:0.7031262098335269, produtivo:0.9019122197702605, qualidade:"", tabulacao:0.01, transf:0.965034965034965},
-    {id:7, agente:"Daniela Cristina De Oliveira Lima", abs:0, logado:1.071781083142639, produtivo:0.9788006234598539, qualidade:"", tabulacao:0.04, transf:0.7353951890034365},
-    {id:8, agente:"Daniela Pacheco De Almeida", abs:0, logado:1.0169480994152045, produtivo:0.9589567992610604, qualidade:"", tabulacao:0.02, transf:0.4933481152993348},
-    {id:9, agente:"Elvis Renato Rios", abs:0, logado:1.0710785486443382, produtivo:0.9509188772051549, qualidade:"", tabulacao:0.3, transf:0.58203125},
-    {id:10, agente:"Kelly Brito Sodre", abs:0, logado:1.3353201754385964, produtivo:0.9625161432078392, qualidade:"", tabulacao:0.04, transf:0.8051575931232091},
-    {id:11, agente:"Luis Eduardo De Lima", abs:0, logado:0.9427978084128666, produtivo:0.9528631056226071, qualidade:"", tabulacao:0.05, transf:0.7744227353463587},
-    {id:12, agente:"Macario Machado De Araujo Junior", abs:0, logado:1.0592276887871854, produtivo:0.9715679518080719, qualidade:"", tabulacao:0.03, transf:0.6301188903566711},
-    {id:13, agente:"Ormano Nevile Sebastiao", abs:0, logado:1.1550598086124402, produtivo:0.9354523085269215, qualidade:"", tabulacao:0.04, transf:0.8100858369098712},
-    {id:14, agente:"Patricia Da Silva Fidelis", abs:0, logado:0.9804169746242918, produtivo:0.9814143469280804, qualidade:"", tabulacao:0.4, transf:0.19946571682991987},
-    {id:15, agente:"Paulo Antonio Da Silva", abs:0, logado:0.9888443935926773, produtivo:0.9067033626096551, qualidade:"", tabulacao:0.03, transf:0.9489456159822419},
-    {id:16, agente:"Silvia Cristina Machado", abs:0, logado:0.9827990268539049, produtivo:0.9866213032751915, qualidade:"", tabulacao:0.03, transf:0.7535121328224776},
-    {id:17, agente:"Tais Dias Paiva", abs:0.34615384615384615, logado:0.9829084429824562, produtivo:0.9804063642403843, qualidade:"", tabulacao:0.15, transf:0.7194767441860465}
-  ],
-  abs: [
-    {id:1, mes:"JANEIRO", abs:12.09},
-    {id:2, mes:"FEVEREIRO", abs:0.1027},
-    {id:3, mes:"MARÇO", abs:0.0599},
-    {id:4, mes:"ABRIL", abs:0.0916},
-    {id:5, mes:"MAIO", abs:0.0635},
-    {id:6, mes:"JUNHO", abs:0.0378},
-    {id:7, mes:"JULHO", abs:""},
-    {id:8, mes:"AGOSTO", abs:""},
-    {id:9, mes:"SETEMBRO", abs:""},
-    {id:10, mes:"OUTUBRO", abs:""},
-    {id:11, mes:"NOVEMBRO", abs:""},
-    {id:12, mes:"DEZEMBRO", abs:""}
-  ],
-  produtivo: [
-    // 01/07
-    {id:1, data:"01/07", matricula:"15545", conectado:"6:04:44", contDisp:1, disponivel:"0:00:08", contAusente:0, ausente:"0:00:00", intervalo:"0:00:00", refeicao:"0:00:00", reuniao:"0:00:00", ocupado:"6:04:36", treinamento:"0:00:00", estouro:"0:00:00", improd:"6:04:44", prod:"0:00:00", pct:0},
-    {id:2, data:"01/07", matricula:"15981", conectado:"5:23:36", contDisp:1, disponivel:"0:00:13", contAusente:1, ausente:"0:01:51", intervalo:"0:10:07", refeicao:"0:20:37", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:00", improd:"0:02:04", prod:"5:21:32", pct:0.8265638389031705},
-    {id:3, data:"01/07", matricula:"16036", conectado:"8:11:46", contDisp:9, disponivel:"0:00:38", contAusente:2, ausente:"0:11:38", intervalo:"0:20:03", refeicao:"1:00:04", reuniao:"0:43:34", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:07", improd:"0:55:46", prod:"7:15:53", pct:1.1205227077977722},
-    {id:4, data:"01/07", matricula:"15979", conectado:"8:49:35", contDisp:1, disponivel:"0:13:22", contAusente:1, ausente:"0:09:41", intervalo:"0:18:58", refeicao:"0:57:57", reuniao:"1:03:34", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:00", improd:"1:26:37", prod:"7:22:58", pct:1.1387317909168808},
-    {id:5, data:"01/07", matricula:"18166", conectado:"6:35:55", contDisp:5, disponivel:"0:08:18", contAusente:1, ausente:"0:15:12", intervalo:"0:20:38", refeicao:"0:20:11", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:49", improd:"0:23:29", prod:"6:11:37", pct:1.172292323869611},
-    {id:6, data:"01/07", matricula:"14771", conectado:"6:21:27", contDisp:10, disponivel:"0:01:00", contAusente:0, ausente:"0:00:00", intervalo:"0:21:16", refeicao:"0:21:28", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:02:44", improd:"0:00:56", prod:"6:17:47", pct:1.1917455310199792},
-    {id:7, data:"01/07", matricula:"15784", conectado:"8:33:41", contDisp:9, disponivel:"0:29:29", contAusente:1, ausente:"0:08:56", intervalo:"0:20:14", refeicao:"1:00:09", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:23", improd:"0:38:21", prod:"7:54:57", pct:1.2209511568123395},
-    {id:8, data:"01/07", matricula:"15396", conectado:"8:11:12", contDisp:11, disponivel:"0:02:42", contAusente:0, ausente:"0:00:00", intervalo:"0:20:12", refeicao:"0:59:55", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:09", estouro:"0:00:12", improd:"0:02:46", prod:"8:08:14", pct:1.2550985432733506},
-    {id:9, data:"01/07", matricula:"14902", conectado:"8:45:33", contDisp:2, disponivel:"0:02:10", contAusente:4, ausente:"0:24:39", intervalo:"0:11:33", refeicao:"0:58:49", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:00", improd:"0:26:47", prod:"8:18:46", pct:1.2821765209940017},
-    {id:10, data:"01/07", matricula:"15393", conectado:"8:23:51", contDisp:1, disponivel:"0:00:13", contAusente:0, ausente:"0:00:00", intervalo:"0:00:00", refeicao:"1:24:02", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:04:02", improd:"0:00:13", prod:"8:19:36", pct:1.284318766066838},
-    {id:11, data:"01/07", matricula:"18377", conectado:"6:54:32", contDisp:1, disponivel:"0:00:14", contAusente:0, ausente:"0:00:00", intervalo:"0:10:01", refeicao:"0:20:01", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:01", improd:"0:00:14", prod:"6:54:17", pct:1.306887486855941},
-    {id:12, data:"01/07", matricula:"17998", conectado:"9:19:49", contDisp:3, disponivel:"0:11:33", contAusente:1, ausente:"0:11:36", intervalo:"0:10:38", refeicao:"1:00:03", reuniao:"0:00:00", ocupado:"0:00:41", treinamento:"0:00:00", estouro:"0:00:03", improd:"0:23:50", prod:"8:55:56", pct:1.3777206512425022},
-    {id:13, data:"01/07", matricula:"17962", conectado:"7:34:15", contDisp:3, disponivel:"0:01:06", contAusente:0, ausente:"0:00:00", intervalo:"0:19:28", refeicao:"0:20:11", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:11", improd:"0:01:05", prod:"7:32:59", pct:1.4289695057833858},
-    {id:14, data:"01/07", matricula:"16194", conectado:"8:26:27", contDisp:2, disponivel:"0:03:52", contAusente:1, ausente:"0:16:05", intervalo:"0:21:36", refeicao:"0:20:36", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:02:11", improd:"0:19:57", prod:"8:04:19", pct:1.5278128286014723},
-    // 02/07 (resumo simplificado)
-    {id:15, data:"02/07", matricula:"15545", conectado:"6:02:25", contDisp:1, disponivel:"0:00:11", contAusente:0, ausente:"0:00:00", intervalo:"0:00:00", refeicao:"0:00:00", reuniao:"0:00:00", ocupado:"6:02:25", treinamento:"0:00:00", estouro:"0:00:00", improd:"6:02:36", prod:"0:00:01", pct:5.257623554153522e-05},
-    {id:16, data:"02/07", matricula:"15979", conectado:"8:40:05", contDisp:1, disponivel:"0:06:27", contAusente:2, ausente:"0:15:03", intervalo:"0:17:39", refeicao:"0:57:29", reuniao:"2:41:30", ocupado:"0:00:00", treinamento:"0:00:02", estouro:"0:00:00", improd:"3:03:02", prod:"5:37:03", pct:0.8664524421593831},
-    {id:17, data:"02/07", matricula:"17998", conectado:"7:12:02", contDisp:1, disponivel:"0:00:03", contAusente:0, ausente:"0:00:00", intervalo:"0:25:21", refeicao:"1:06:44", reuniao:"0:45:01", ocupado:"0:00:00", treinamento:"0:00:27", estouro:"0:12:05", improd:"0:45:31", prod:"6:26:31", pct:0.9936161096829478},
-    {id:18, data:"02/07", matricula:"15981", conectado:"6:47:19", contDisp:1, disponivel:"0:00:06", contAusente:0, ausente:"0:00:00", intervalo:"0:20:33", refeicao:"1:00:02", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:35", improd:"0:00:06", prod:"6:27:07", pct:0.99515852613539},
-    {id:19, data:"02/07", matricula:"14902", conectado:"7:41:42", contDisp:1, disponivel:"0:00:21", contAusente:4, ausente:"0:44:10", intervalo:"0:13:11", refeicao:"0:58:06", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:00", improd:"0:44:29", prod:"6:57:13", pct:1.0725364181662382},
-    {id:20, data:"02/07", matricula:"16036", conectado:"7:55:20", contDisp:2, disponivel:"0:01:46", contAusente:3, ausente:"0:11:51", intervalo:"0:19:54", refeicao:"1:00:07", reuniao:"0:43:38", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:07", improd:"0:57:13", prod:"6:58:07", pct:1.0748500428449015},
-    {id:21, data:"02/07", matricula:"18166", conectado:"6:09:49", contDisp:8, disponivel:"0:05:18", contAusente:1, ausente:"0:07:35", intervalo:"0:20:14", refeicao:"0:20:04", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:18", improd:"0:12:50", prod:"5:56:59", pct:1.126130389064143},
-    {id:22, data:"02/07", matricula:"17962", conectado:"6:27:06", contDisp:5, disponivel:"0:13:25", contAusente:1, ausente:"0:05:12", intervalo:"0:20:09", refeicao:"0:22:33", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:02:42", improd:"0:18:34", prod:"6:08:32", pct:1.162565720294427},
-    {id:23, data:"02/07", matricula:"14771", conectado:"6:21:08", contDisp:9, disponivel:"0:03:04", contAusente:0, ausente:"0:00:00", intervalo:"0:20:50", refeicao:"0:19:37", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:49", improd:"0:03:00", prod:"6:18:08", pct:1.1928496319663513},
-    {id:24, data:"02/07", matricula:"15784", conectado:"8:51:59", contDisp:5, disponivel:"0:03:30", contAusente:0, ausente:"0:00:00", intervalo:"0:20:22", refeicao:"1:00:04", reuniao:"0:56:57", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:25", improd:"1:00:26", prod:"7:51:33", pct:1.2122107969151672},
-    {id:25, data:"02/07", matricula:"15396", conectado:"8:02:54", contDisp:8, disponivel:"0:04:30", contAusente:0, ausente:"0:00:00", intervalo:"0:20:31", refeicao:"0:59:56", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:30", improd:"0:04:26", prod:"7:58:24", pct:1.2298200514138817},
-    {id:26, data:"02/07", matricula:"15393", conectado:"8:13:38", contDisp:1, disponivel:"0:00:14", contAusente:1, ausente:"0:10:23", intervalo:"0:00:00", refeicao:"1:20:37", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:36", improd:"0:10:37", prod:"8:03:01", pct:1.2416880891173951},
-    {id:27, data:"02/07", matricula:"16049", conectado:"7:08:31", contDisp:4, disponivel:"0:08:25", contAusente:0, ausente:"0:00:00", intervalo:"0:10:14", refeicao:"0:19:11", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:00", improd:"0:08:22", prod:"7:00:09", pct:1.3253943217665614},
-    {id:28, data:"02/07", matricula:"18377", conectado:"7:08:18", contDisp:4, disponivel:"0:01:33", contAusente:0, ausente:"0:00:00", intervalo:"0:18:41", refeicao:"0:20:07", reuniao:"0:00:00", ocupado:"0:03:57", treinamento:"0:00:00", estouro:"0:00:07", improd:"0:05:29", prod:"7:02:49", pct:1.3338065194532072},
-    {id:29, data:"02/07", matricula:"16194", conectado:"8:00:49", contDisp:4, disponivel:"0:06:34", contAusente:0, ausente:"0:00:00", intervalo:"0:20:41", refeicao:"0:17:30", reuniao:"0:00:00", ocupado:"0:00:00", treinamento:"0:00:00", estouro:"0:00:36", improd:"0:06:33", prod:"7:54:16", pct:1.4961093585699263}
-    // Nota: dados completos dos dias 03/07, 06/07 etc. foram omitidos aqui para brevidade,
-    // mas a estrutura é idêntica. O usuário pode adicionar/editar pela área ADM.
-  ],
-  bh: [
-    {id:1, matricula:"16049", colaborador:"ADRIELE SOUZA BRITO", saldoNeg:"1 day, 4:15:00", prazo:"2026-07-31", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:2, matricula:"15396", colaborador:"ANA LUCIA MELO DA MOTA", saldoNeg:"04:03:00", prazo:"2026-07-17", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:3, matricula:"17998", colaborador:"CLAUDIA APARECIDA BARBOSA MARQUES", saldoNeg:"10:00:00", prazo:"2026-07-29", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:4, matricula:"18166", colaborador:"ELVIS RENATO RIOS", saldoNeg:"07:34:00", prazo:"2026-07-17", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:5, matricula:"16036", colaborador:"ORMANO NEVILE SEBASTIAO", saldoNeg:"07:28:00", prazo:"2026-07-17", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:6, matricula:"15784", colaborador:"KELLY BRITO SODRE", saldoNeg:"06:31:00", prazo:"2026-07-20", matriculaPos:"", colaboradorPos:"", saldoPos:""},
-    {id:7, matricula:"", colaborador:"", saldoNeg:"", prazo:"", matriculaPos:"14771", colaboradorPos:"BRUNA SILVA ESCOBAR", saldoPos:"05:54:00"},
-    {id:8, matricula:"", colaborador:"", saldoNeg:"", prazo:"", matriculaPos:"15979", colaboradorPos:"DAN SANTOS ROCHA DA SILVA", saldoPos:"11:25:00"},
-    {id:9, matricula:"", colaborador:"", saldoNeg:"", prazo:"", matriculaPos:"17962", colaboradorPos:"MACARIO MACHADO DE ARAUJO JUNIOR", saldoPos:"05:07:00"},
-    {id:10, matricula:"", colaborador:"", saldoNeg:"", prazo:"", matriculaPos:"15393", colaboradorPos:"PATRICIA DA SILVA FIDELIS", saldoPos:""}
-  ],
-  indicadores: [
-    {id:1, matricula:"16049", colaborador:"Adriele Souza Brito", atendidas:2572, quartil:"Q2", dias:120, pctProd:0.8844641360983819, tpConectado:"1900-06-21 04:12:17.790000", tpLogado:"757:13:48", pctTransf:0.5746500777604977, csat:0.9424836601307189, tabuladas:0.9276827371695179},
-    {id:2, matricula:"15396", colaborador:"Ana Lucia Melo Da Mota", atendidas:5997, quartil:"Q1", dias:118, pctProd:0.8022664081498989, tpConectado:"1900-06-27 08:02:23.677000", tpLogado:"1015:20:11", pctTransf:0.59879939969985, csat:0.9661876584953508, tabuladas:1.0093380023345007},
-    {id:3, matricula:"16194", colaborador:"Berenice Peixoto Rios", atendidas:3236, quartil:"Q1", dias:108, pctProd:0.8127876111279221, tpConectado:"1900-06-26 04:56:11.990000", tpLogado:"725:12:10", pctTransf:0.5865265760197775, csat:0.7814661134163209, tabuladas:0.7988257107540173},
-    {id:4, matricula:"14771", colaborador:"Bruna Silva Escobar", atendidas:4732, quartil:"Q1", dias:140, pctProd:0.9458142364446396, tpConectado:"1900-06-27 06:28:19.163000", tpLogado:"910:55:30", pctTransf:0.5688926458157227, csat:0.9436758893280632, tabuladas:0.9452662721893491},
-    {id:5, matricula:"15979", colaborador:"Dan Santos Rocha Da Silva", atendidas:4304, quartil:"Q1", dias:111, pctProd:0.834333912696621, tpConectado:"1900-06-27 08:07:43.950000", tpLogado:"908:05:06", pctTransf:0.5764405204460966, csat:0.9360222531293463, tabuladas:1.0157992565055762},
-    {id:6, matricula:"18377", colaborador:"Daniela Cristina De Oliveira Lima", atendidas:358, quartil:"Q3", dias:22, pctProd:0.8875133251044969, tpConectado:"1900-02-02 06:45:06.133000", tpLogado:"158:25:52", pctTransf:0.547486033519553, csat:0.9444444444444444, tabuladas:1.0335195530726258},
-    {id:7, matricula:"18166", colaborador:"Elvis Renato Rios", atendidas:842, quartil:"Q3", dias:46, pctProd:0.8882344361017149, tpConectado:"1900-03-03 10:45:31.753000", tpLogado:"319:56:08", pctTransf:0.5736342042755345, csat:0.8754208754208754, tabuladas:0.9085510688836105},
-    {id:8, matricula:"15784", colaborador:"Kelly Brito Sodre", atendidas:5890, quartil:"Q1", dias:121, pctProd:0.92314503049123, tpConectado:"1900-06-27 06:23:09.480000", tpLogado:"1018:41:24", pctTransf:0.5604414261460102, csat:0.8946015424164524, tabuladas:0.9057724957555179},
-    {id:9, matricula:"14902", colaborador:"Luis Eduardo De Lima", atendidas:2873, quartil:"Q2", dias:123, pctProd:0.9345602425707941, tpConectado:"1900-06-27 08:00:55.083000", tpLogado:"993:25:58", pctTransf:0.5673512008353637, csat:0.9190509420795534, tabuladas:0.9867734075878872},
-    {id:10, matricula:"17962", colaborador:"Macario Machado De Araujo Junior", atendidas:1192, quartil:"Q3", dias:55, pctProd:0.8473315959538685, tpConectado:"1900-03-17 09:29:13.887000", tpLogado:"382:07:15", pctTransf:0.5553691275167785, csat:0.9527027027027027, tabuladas:0.9907718120805369},
-    {id:11, matricula:"16036", colaborador:"Ormano Nevile Sebastiao", atendidas:5523, quartil:"Q1", dias:118, pctProd:0.9025235645406515, tpConectado:"1900-06-27 07:06:15.873000", tpLogado:"1089:15:58", pctTransf:0.5862755748687307, csat:0.9218045112781955, tabuladas:0.9998189389824371},
-    {id:12, matricula:"15393", colaborador:"Patricia Da Silva Fidelis", atendidas:5553, quartil:"Q1", dias:127, pctProd:0.9386085425113477, tpConectado:"1900-06-27 07:17:43.403000", tpLogado:"1027:07:28", pctTransf:0.5760849990995858, csat:0.8976190476190476, tabuladas:0.7981271384837025},
-    {id:13, matricula:"15545", colaborador:"Paulo Antonio Da Silva", atendidas:"", quartil:"Q4", dias:"", pctProd:0, tpConectado:"1900-02-04 02:20:43.857000", tpLogado:"176:48:54", pctTransf:"", csat:"", tabuladas:""},
-    {id:14, matricula:"15981", colaborador:"Silvia Cristina Machado", atendidas:3542, quartil:"Q1", dias:122, pctProd:0.9507693972612844, tpConectado:"1900-06-27 09:14:13.087000", tpLogado:"1031:51:01", pctTransf:0.5553359683794467, csat:0.9469240048250904, tabuladas:0.9878599661208357},
-    {id:15, matricula:"17742", colaborador:"Tais Dias Paiva", atendidas:2454, quartil:"Q2", dias:68, pctProd:0.8256901754967, tpConectado:"1900-03-14 02:39:51.127000", tpLogado:"410:58:35", pctTransf:0.571719641401793, csat:0.845771144278607, tabuladas:0.9792176039119804}
-  ],
-  apresentacoes: [
-    {id:1, indicador:"ABS - JUNHO", valor:"0.0376"},
-    {id:2, indicador:"OFENSORES - JUNHO — CLAUDIA APARECIDA BARBOSA MARQUES", valor:"0.125"},
-    {id:3, indicador:"OFENSORES - JUNHO — DAN SANTOS ROCHA DA SILVA", valor:"0.047619047619047616"},
-    {id:4, indicador:"OFENSORES - JUNHO — FELIPE NOGUEIRA SIQUEIRA", valor:"0.5"},
-    {id:5, indicador:"ABS SEMANAL", valor:"0.0942"},
-    {id:6, indicador:"DIA 1 AO 7", valor:"0.092"},
-    {id:7, indicador:"DIA 8 AO DIA 15", valor:""},
-    {id:8, indicador:"ABS comparativo Junho e Julho (01 a 10) — JUNHO", valor:"9,83%"},
-    {id:9, indicador:"ABS comparativo Junho e Julho (01 a 10) — JULHO", valor:"10,00%"}
-  ]
-};
+const API_URL = 'https://api-equipe.onrender.com/api'; // URL da sua API no Render
 
-/* ============================================================
-   ESTADO + PERSISTÊNCIA
-   ============================================================ */
-const STORAGE_KEY = 'leo_geral_v1';
-let DB = loadDB();
+let DB = { youpoints: [], abs: [], produtivo: [], bh: [], indicadores: [], apresentacoes: [] };
 let isAdmin = false;
 let currentView = 'youpoints';
 
-function loadDB(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return JSON.parse(JSON.stringify(SEED));
-}
-function saveDB(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
-}
-function nextId(arr){
-  return arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1;
+/* ============================================================
+   FUNÇÕES DE COMUNICAÇÃO COM O BANCO (MONGODB)
+   ============================================================ */
+async function carregarDadosDoBanco() {
+    toast('Carregando dados da nuvem (pode levar 30s se estiver hibernando)...', false, true);
+    try {
+        const tabelas = ['youpoints', 'abs', 'produtivo', 'bh', 'indicadores', 'apresentacoes'];
+        
+        for (let t of tabelas) {
+            const response = await fetch(`${API_URL}/${t}`);
+            if(!response.ok) throw new Error('Erro na rede');
+            const dados = await response.json();
+            // Padroniza "_id" do Mongo para "id" usado no HTML
+            DB[t] = dados.map(item => ({ ...item, id: item._id }));
+        }
+        renderAll();
+        toast('Dados atualizados com sucesso!');
+    } catch (err) {
+        console.error(err);
+        toast('Erro de conexão. A API do Render está online?', true);
+    }
 }
 
 /* ============================================================
@@ -522,12 +269,12 @@ const fmtNum = v => (v===""||v===null||v===undefined) ? '—' : Number(v).toLoca
 const safe = v => (v===""||v===null||v===undefined) ? '—' : v;
 const quartilTag = q => `<span class="tag ${String(q||'').toLowerCase()}">${q||'—'}</span>`;
 
-function toast(msg, err=false){
+function toast(msg, err=false, loading=false){
   const t = $('#toast');
   t.textContent = msg;
-  t.className = 'toast show' + (err ? ' err' : '');
+  t.className = 'toast show' + (err ? ' err' : '') + (loading ? ' loading' : '');
   clearTimeout(t._tm);
-  t._tm = setTimeout(()=>t.className='toast', 2200);
+  t._tm = setTimeout(()=>t.className='toast', loading ? 8000 : 3000);
 }
 
 /* ============================================================
@@ -544,23 +291,26 @@ $$('#sidebar button').forEach(btn=>{
   });
 });
 
+$('#btnRefresh').addEventListener('click', carregarDadosDoBanco);
+
 /* ============================================================
-   RENDER: KPIs + TABELAS
+   RENDERIZAÇÃO DAS TELAS
    ============================================================ */
 function renderAll(){
-  renderYoupoints();
-  renderAbs();
-  renderProdutivo();
-  renderBh();
-  renderIndicadores();
-  renderApresentacoes();
+  if(DB.youpoints) renderYoupoints();
+  if(DB.abs) renderAbs();
+  if(DB.produtivo) renderProdutivo();
+  if(DB.bh) renderBh();
+  if(DB.indicadores) renderIndicadores();
+  if(DB.apresentacoes) renderApresentacoes();
   applyAdminVisibility();
 }
 
-/* ---------- YOUPOINTS ---------- */
 function renderYoupoints(){
   const arr = DB.youpoints;
   const kpi = $('#kpi-youpoints');
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-youpoints').innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado na nuvem. Vá em Área ADM e adicione.</td></tr>`; return; }
+  
   const mediaLog = arr.reduce((s,x)=>s+Number(x.logado||0),0)/arr.length;
   const mediaProd = arr.reduce((s,x)=>s+Number(x.produtivo||0),0)/arr.length;
   const mediaTransf = arr.reduce((s,x)=>s+Number(x.transf||0),0)/arr.length;
@@ -572,25 +322,21 @@ function renderYoupoints(){
   `;
   $('#tbody-youpoints').innerHTML = arr.map(r=>`
     <tr>
-      <td>${r.agente}</td>
-      <td class="num">${fmtNum(r.abs)}</td>
-      <td class="num">${fmtNum(r.logado)}</td>
-      <td class="num">${fmtNum(r.produtivo)}</td>
-      <td>${safe(r.qualidade)}</td>
-      <td class="num">${fmtNum(r.tabulacao)}</td>
-      <td class="num">${fmtNum(r.transf)}</td>
+      <td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td>
+      <td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="youpoints" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="youpoints" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="8" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
-/* ---------- ABS ---------- */
 function renderAbs(){
   const arr = DB.abs;
   const kpi = $('#kpi-abs');
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-abs').innerHTML = `<tr><td colspan="3" class="empty">Nenhum dado.</td></tr>`; return; }
+  
   const valid = arr.filter(x=>x.abs!=="").map(x=>Number(x.abs));
   const media = valid.length ? (valid.reduce((a,b)=>a+b,0)/valid.length) : 0;
   const maior = valid.length ? Math.max(...valid) : 0;
@@ -601,20 +347,20 @@ function renderAbs(){
   `;
   $('#tbody-abs').innerHTML = arr.map(r=>`
     <tr>
-      <td>${r.mes}</td>
-      <td class="num">${safe(r.abs)}</td>
+      <td>${r.mes}</td><td class="num">${safe(r.abs)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="abs" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="abs" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="3" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
-/* ---------- PRODUTIVO ---------- */
 function renderProdutivo(){
   const arr = DB.produtivo;
   const kpi = $('#kpi-produtivo');
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-produtivo').innerHTML = `<tr><td colspan="17" class="empty">Nenhum dado.</td></tr>`; return; }
+
   const valid = arr.map(x=>Number(x.pct)).filter(v=>!isNaN(v) && v!==0);
   const media = valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : 0;
   const max = valid.length ? Math.max(...valid) : 0;
@@ -625,27 +371,24 @@ function renderProdutivo(){
   `;
   $('#tbody-produtivo').innerHTML = arr.map(r=>`
     <tr>
-      <td>${r.data}</td><td>${r.matricula}</td>
-      <td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td>
-      <td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td>
-      <td>${safe(r.ausente)}</td><td>${safe(r.intervalo)}</td>
-      <td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td>
-      <td>${safe(r.ocupado)}</td><td>${safe(r.treinamento)}</td>
-      <td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td>
-      <td>${safe(r.prod)}</td>
+      <td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td>
+      <td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${safe(r.ausente)}</td>
+      <td>${safe(r.intervalo)}</td><td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td><td>${safe(r.ocupado)}</td>
+      <td>${safe(r.treinamento)}</td><td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td><td>${safe(r.prod)}</td>
       <td class="num">${fmtPct(r.pct)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="produtivo" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="produtivo" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="17" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
-/* ---------- BH ---------- */
 function renderBh(){
   const arr = DB.bh;
   const kpi = $('#kpi-bh');
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-bh').innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado.</td></tr>`; return; }
+
   const neg = arr.filter(x=>x.saldoNeg).length;
   const pos = arr.filter(x=>x.saldoPos).length;
   kpi.innerHTML = `
@@ -655,22 +398,21 @@ function renderBh(){
   `;
   $('#tbody-bh').innerHTML = arr.map(r=>`
     <tr>
-      <td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td>
-      <td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td>
-      <td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td>
-      <td class="pos">${safe(r.saldoPos)}</td>
+      <td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td>
+      <td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${safe(r.saldoPos)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="bh" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="bh" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="8" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
-/* ---------- INDICADORES ---------- */
 function renderIndicadores(){
   const arr = DB.indicadores;
   const kpi = $('#kpi-indicadores');
+  if(!arr.length) { kpi.innerHTML=''; $('#tbody-indicadores').innerHTML = `<tr><td colspan="12" class="empty">Nenhum dado.</td></tr>`; return; }
+
   const totalAt = arr.reduce((s,x)=>s+(Number(x.atendidas)||0),0);
   const mediaCsat = arr.filter(x=>x.csat!=="").reduce((s,x)=>s+Number(x.csat),0) / (arr.filter(x=>x.csat!=="").length||1);
   kpi.innerHTML = `
@@ -680,40 +422,34 @@ function renderIndicadores(){
   `;
   $('#tbody-indicadores').innerHTML = arr.map(r=>`
     <tr>
-      <td>${r.matricula}</td><td>${r.colaborador}</td>
-      <td class="num">${fmtNum(r.atendidas)}</td>
-      <td>${quartilTag(r.quartil)}</td>
-      <td class="num">${safe(r.dias)}</td>
-      <td class="num">${fmtPct(r.pctProd)}</td>
-      <td>${safe(r.tpConectado)}</td><td>${safe(r.tpLogado)}</td>
-      <td class="num">${fmtPct(r.pctTransf)}</td>
-      <td class="num">${fmtPct(r.csat)}</td>
-      <td class="num">${fmtPct(r.tabuladas)}</td>
+      <td>${r.matricula}</td><td>${r.colaborador}</td><td class="num">${fmtNum(r.atendidas)}</td><td>${quartilTag(r.quartil)}</td>
+      <td class="num">${safe(r.dias)}</td><td class="num">${fmtPct(r.pctProd)}</td><td>${safe(r.tpConectado)}</td><td>${safe(r.tpLogado)}</td>
+      <td class="num">${fmtPct(r.pctTransf)}</td><td class="num">${fmtPct(r.csat)}</td><td class="num">${fmtPct(r.tabuladas)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="indicadores" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="indicadores" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="12" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
-/* ---------- APRESENTAÇÕES ---------- */
 function renderApresentacoes(){
   const arr = DB.apresentacoes;
+  if(!arr.length) { $('#tbody-apresentacoes').innerHTML = `<tr><td colspan="3" class="empty">Nenhum dado.</td></tr>`; return; }
+  
   $('#tbody-apresentacoes').innerHTML = arr.map(r=>`
     <tr>
-      <td>${r.indicador}</td>
-      <td class="num">${safe(r.valor)}</td>
+      <td>${r.indicador}</td><td class="num">${safe(r.valor)}</td>
       <td class="adm-only hidden">
         <button class="btn btn-ok btn-sm" data-edit="apresentacoes" data-id="${r.id}">✎</button>
         <button class="btn btn-danger btn-sm" data-del="apresentacoes" data-id="${r.id}">🗑</button>
       </td>
     </tr>
-  `).join('') || `<tr><td colspan="3" class="empty">Nenhum registro.</td></tr>`;
+  `).join('');
 }
 
 /* ============================================================
-   ADMIN — LOGIN / VISIBILIDADE
+   ADMIN E MODAL
    ============================================================ */
 function applyAdminVisibility(){
   $$('.adm-only').forEach(el=>{
@@ -732,7 +468,7 @@ $('#btnLogin').addEventListener('click', ()=>{
   }
   const pwd = prompt('Digite a senha administrativa:');
   if(pwd === null) return;
-  if(pwd === 'admin123'){           // senha padrão — pode ser alterada no código
+  if(pwd === 'admin123'){
     isAdmin = true;
     applyAdminVisibility();
     toast('Bem-vindo, administrador!');
@@ -741,26 +477,21 @@ $('#btnLogin').addEventListener('click', ()=>{
   }
 });
 
-/* ============================================================
-   AÇÕES: EDITAR / EXCLUIR / ADICIONAR
-   ============================================================ */
+let modalCtx = {table:null, id:null};
+
 document.addEventListener('click', e=>{
   const editBtn = e.target.closest('[data-edit]');
-  if(editBtn){
-    const {edit, id} = editBtn.dataset;
-    openModal(edit, Number(id));
-    return;
-  }
+  if(editBtn){ openModal(editBtn.dataset.edit, editBtn.dataset.id); return; }
+  
   const delBtn = e.target.closest('[data-del]');
   if(delBtn){
-    const {del, id} = delBtn.dataset;
     if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
-    if(confirm('Deseja realmente excluir este registro?')){
-      DB[del] = DB[del].filter(x=>x.id !== Number(id));
-      saveDB(); renderAll(); toast('Registro excluído.');
+    if(confirm('Deseja realmente excluir este registro do banco de dados?')){
+      excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
     }
     return;
   }
+  
   const addBtn = e.target.closest('[data-add]');
   if(addBtn){
     if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
@@ -768,8 +499,17 @@ document.addEventListener('click', e=>{
   }
 });
 
-/* ---------- MODAL ---------- */
-let modalCtx = {table:null, id:null};
+async function excluirDoBanco(tabela, id) {
+  try {
+    const response = await fetch(`${API_URL}/${tabela}/${id}`, { method: 'DELETE' });
+    if(!response.ok) throw new Error('Erro ao deletar');
+    DB[tabela] = DB[tabela].filter(x => x.id !== id);
+    renderAll();
+    toast('Registro excluído do banco!');
+  } catch (err) {
+    toast('Erro ao excluir.', true);
+  }
+}
 
 function openModal(table, id){
   if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
@@ -780,14 +520,14 @@ function openModal(table, id){
   $('#modalBody').innerHTML = fieldsOf(table, record);
   $('#modalBack').classList.add('open');
 }
+
 function closeModal(){ $('#modalBack').classList.remove('open'); }
 $('#modalClose').addEventListener('click', closeModal);
 $('#modalCancel').addEventListener('click', closeModal);
 $('#modalBack').addEventListener('click', e=>{ if(e.target.id==='modalBack') closeModal(); });
 
 function labelOf(t){
-  return {youpoints:'YOUPOINTS', abs:'SOMENTE ABS', produtivo:'TEMPO PRODUTIVO',
-    bh:'CONTROLE BH', indicadores:'CONTROLE INDICADORES', apresentacoes:'APRESENTAÇÕES'}[t] || t;
+  return {youpoints:'YOUPOINTS', abs:'SOMENTE ABS', produtivo:'TEMPO PRODUTIVO', bh:'CONTROLE BH', indicadores:'CONTROLE INDICADORES', apresentacoes:'APRESENTAÇÕES'}[t] || t;
 }
 
 function fieldRow(label, name, val, type='text', extra=''){
@@ -858,45 +598,47 @@ function fieldsOf(table, r){
   return '';
 }
 
-$('#modalSave').addEventListener('click', ()=>{
+$('#modalSave').addEventListener('click', async ()=>{
   const {table, id} = modalCtx;
   if(!table) return;
+  
   const data = {};
   $$('#modalBody [data-field]').forEach(inp=>{
     let v = inp.value;
-    if(inp.type === 'number'){
-      v = v === '' ? '' : Number(v);
-    }
+    if(inp.type === 'number'){ v = v === '' ? '' : Number(v); }
     data[inp.dataset.field] = v;
   });
-  if(id === null){
-    data.id = nextId(DB[table]);
-    DB[table].push(data);
-  }else{
-    const idx = DB[table].findIndex(x=>x.id===id);
-    if(idx >= 0) DB[table][idx] = {...DB[table][idx], ...data};
+  
+  if(id) data.id = id; // Envia o _id do Mongo para a API saber que é edição
+  
+  try {
+    $('#modalSave').textContent = 'Salvando na Nuvem...';
+    $('#modalSave').disabled = true;
+    
+    const response = await fetch(`${API_URL}/${table}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if(!response.ok) throw new Error('Erro ao salvar');
+    
+    await carregarDadosDoBanco(); // Recarrega do banco para garantir sincronia
+    closeModal();
+    toast('Registro salvo na nuvem!');
+  } catch (err) {
+    toast('Erro ao salvar no banco.', true);
+  } finally {
+    $('#modalSave').textContent = 'Salvar na Nuvem';
+    $('#modalSave').disabled = false;
   }
-  saveDB();
-  closeModal();
-  renderAll();
-  toast('Registro salvo com sucesso!');
 });
 
 /* ============================================================
-   RESET
+   INICIALIZAÇÃO
    ============================================================ */
-$('#btnReset').addEventListener('click', ()=>{
-  if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
-  if(confirm('Restaurar todos os dados originais da planilha? As alterações serão perdidas.')){
-    DB = JSON.parse(JSON.stringify(SEED));
-    saveDB(); renderAll(); toast('Dados restaurados.');
-  }
-});
-
-/* ============================================================
-   INIT
-   ============================================================ */
-renderAll();
+// Puxa os dados da API assim que o site abre
+carregarDadosDoBanco();
 </script>
 </body>
 </html>
