@@ -94,7 +94,8 @@
     <div><h1>EQUIPE LEO GERAL</h1><small>Painel de Indicadores · Nuvem</small></div>
   </div>
   <div class="header-actions">
-    <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar Dados</button>
+    <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar</button>
+    <button class="btn btn-primary btn-sm" id="btnConfigGlobais" style="display:none">⚙️ Configurações Globais</button>
     <button class="btn btn-primary btn-sm" id="btnLogin">🔒 Área ADM</button>
   </div>
 </header>
@@ -121,7 +122,6 @@
         <div><h2>GERENCIAR FUNCIONÁRIOS</h2><p>Edite os dados do funcionário e todas as suas métricas em um único lugar.</p></div>
         <button class="btn btn-ok btn-sm adm-only hidden" id="btnNovoFuncionario">+ Novo Funcionário</button>
       </div>
-      
       <div class="table-wrap">
         <table>
           <thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th><th class="adm-only hidden">Ações Integradas</th></tr></thead>
@@ -130,7 +130,7 @@
       </div>
     </section>
 
-    <!-- LISTA SIMPLES DE FUNCIONÁRIOS (Somente Leitura) -->
+    <!-- LISTA SIMPLES DE FUNCIONÁRIOS -->
     <section class="view" id="view-funcionarios">
       <div class="page-head">
         <div><h2>LISTA DE FUNCIONÁRIOS</h2><p>Visualização limpa da equipe.</p></div>
@@ -161,7 +161,7 @@
     <!-- SOMENTE ABS -->
     <section class="view" id="view-abs">
       <div class="page-head">
-        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado.</p></div>
+        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado (Geral).</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-abs', 'ABS')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-abs">
@@ -224,7 +224,7 @@
   </main>
 </div>
 
-<!-- MODAL DE EDIÇÃO INTEGRADA (TODAS AS ABAS EM UM SÓ LUGAR) -->
+<!-- MODAL DE EDIÇÃO INTEGRADA (FUNCIONÁRIOS) -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
     <div class="modal-head">
@@ -232,7 +232,6 @@
       <button class="btn btn-ghost btn-sm" id="modalClose" style="background:#eef4f9;color:var(--muted)">✕</button>
     </div>
     <div class="modal-body">
-      <!-- Navegação por Abas do Modal -->
       <div class="integrated-tabs" id="modalTabs">
         <button class="active" data-mtab="dados-basicos">1. Dados Básicos</button>
         <button data-mtab="youpoints">2. Youpoints</button>
@@ -240,10 +239,7 @@
         <button data-mtab="indicadores">4. Indicadores</button>
         <button data-mtab="bh">5. Banco de Horas</button>
       </div>
-
-      <div id="modalFormContainer">
-        <!-- O conteúdo é gerado via JS -->
-      </div>
+      <div id="modalFormContainer"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" id="modalCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
@@ -251,6 +247,30 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL DE CONFIGURAÇÕES GLOBAIS (ABS E APRESENTAÇÕES) -->
+<div class="modal-back" id="modalConfigBack">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Configurações Globais</h3>
+      <button class="btn btn-ghost btn-sm" id="modalConfigClose" style="background:#eef4f9;color:var(--muted)">✕</button>
+    </div>
+    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+      <h4 style="color:var(--brand); margin-bottom:10px;">Somente ABS (Geral)</h4>
+      <div class="form-grid" id="configAbsGrid"></div>
+      
+      <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;">
+      
+      <h4 style="color:var(--brand); margin-bottom:10px;">Apresentações</h4>
+      <div class="form-grid" id="configApresGrid"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" id="modalConfigCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="modalConfigSave">Salvar Configurações</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -339,16 +359,10 @@ async function toggleFavorito(id, isFav){
 
 // 2. LISTAS DE VISUALIZAÇÃO
 function renderFuncionariosView(){
-  const arr = DB.funcionarios;
-  $('#tbody-funcionarios').innerHTML = arr.map(r=>`
-    <tr>
-      <td><span class="star ${r.favorito ? 'active' : ''}">★</span></td>
-      <td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td>
-      <td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td>
-    </tr>
+  $('#tbody-funcionarios').innerHTML = DB.funcionarios.map(r=>`
+    <tr><td><span class="star ${r.favorito ? 'active' : ''}">★</span></td><td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td><td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td></tr>
   `).join('') || `<tr><td colspan="5" class="empty">Vazio.</td></tr>`;
 }
-
 function renderYoupointsView(){
   $('#tbody-youpoints').innerHTML = DB.youpoints.map(r=>`
     <tr><td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td></tr>
@@ -392,6 +406,7 @@ function gerarPDF(tabelaId, nomeArquivo) {
 function applyAdminVisibility(){
   $$('.adm-only').forEach(el => isAdmin ? el.classList.remove('hidden') : el.classList.add('hidden'));
   $('#btnLogin').textContent = isAdmin ? '🔓 Sair ADM' : '🔒 Área ADM';
+  $('#btnConfigGlobais').style.display = isAdmin ? 'inline-flex' : 'none';
 }
 
 $('#btnLogin').addEventListener('click', ()=>{
@@ -405,7 +420,7 @@ document.addEventListener('click', e=>{
   const delBtn = e.target.closest('[data-del]');
   if(delBtn){
     if(!isAdmin){ toast('Acesso restrito.', true); return; }
-    if(confirm('Deseja excluir o funcionário do banco de dados? (Isso não apaga as métricas dele)')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
+    if(confirm('Deseja excluir o funcionário?')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
   }
 });
 
@@ -417,17 +432,15 @@ async function excluirDoBanco(tabela, id) {
   } catch (err) { toast('Erro ao excluir.', true); }
 }
 
-/* =================== MODAL DE EDIÇÃO INTEGRADA =================== */
+/* =================== MODAL DE EDIÇÃO INTEGRADA (FUNCIONÁRIOS) =================== */
 let integratedCtx = { idFuncionario: null, matricula: null };
 
 $('#btnNovoFuncionario').addEventListener('click', () => openIntegratedModal(null, null));
 
 function openIntegratedModal(matricula, idFunc) {
   if(!isAdmin) return;
-  
   integratedCtx = { idFuncionario: idFunc, matricula: matricula };
   
-  // Busca registros nas outras tabelas pela matrícula
   const func = idFunc ? DB.funcionarios.find(x=>x.id===idFunc) : {};
   const yp = matricula ? DB.youpoints.find(x=>x.agente && x.agente.includes(func.nome ? func.nome.split(' ')[0] : '')) || {} : {};
   const prod = matricula ? DB.produtivo.find(x=>x.matricula === matricula) || {} : {};
@@ -436,7 +449,6 @@ function openIntegratedModal(matricula, idFunc) {
 
   $('#modalTitle').textContent = idFunc ? 'Editar Funcionário Integrado' : 'Novo Funcionário Integrado';
   $('#modalFormContainer').innerHTML = `
-    <!-- ABA 1: DADOS BÁSICOS -->
     <div class="tab-content active" id="tab-dados-basicos">
       <div class="form-grid">
         ${fieldRow('Nome Completo','nome',func.nome)}
@@ -445,8 +457,6 @@ function openIntegratedModal(matricula, idFunc) {
         ${fieldRow('Lembrete','lembrete',func.lembrete)}
       </div>
     </div>
-
-    <!-- ABA 2: YOUPOINTS -->
     <div class="tab-content" id="tab-youpoints">
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints (buscadas pelo nome).</p>
       <div class="form-grid">
@@ -459,8 +469,6 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
       <input type="hidden" data-field="yp_id" value="${yp.id || ''}">
     </div>
-
-    <!-- ABA 3: TEMPO PRODUTIVO -->
     <div class="tab-content" id="tab-produtivo">
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Dados do dia (busca pela matrícula).</p>
       <div class="form-grid">
@@ -471,8 +479,6 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
       <input type="hidden" data-field="prod_id" value="${prod.id || ''}">
     </div>
-
-    <!-- ABA 4: INDICADORES -->
     <div class="tab-content" id="tab-indicadores">
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Indicadores gerais (busca pela matrícula).</p>
       <div class="form-grid">
@@ -484,8 +490,6 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
       <input type="hidden" data-field="ind_id" value="${ind.id || ''}">
     </div>
-
-    <!-- ABA 5: BANCO DE HORAS -->
     <div class="tab-content" id="tab-bh">
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Saldo de Banco de Horas (busca pela matrícula).</p>
       <div class="form-grid">
@@ -498,16 +502,13 @@ function openIntegratedModal(matricula, idFunc) {
     </div>
   `;
 
-  // Ativar abas
   $$('#modalTabs button').forEach(btn => btn.classList.remove('active'));
   $$('#modalTabs button')[0].classList.add('active');
   $$('.tab-content').forEach(c => c.classList.remove('active'));
   $('#tab-dados-basicos').classList.add('active');
-
   $('#modalBack').classList.add('open');
 }
 
-// Trocar de aba no Modal
 $$('#modalTabs button').forEach(btn => {
   btn.addEventListener('click', () => {
     $$('#modalTabs button').forEach(b => b.classList.remove('active'));
@@ -526,12 +527,10 @@ function fieldRow(label, name, val, type='text', extra=''){
     <input type="${type}" data-field="${name}" value="${val!==undefined && val!==null ? String(val).replace(/"/g,'&quot;') : ''}" ${extra} /></div>`;
 }
 
-// SALVAR TUDO (O Pulo do Gato)
 $('#modalSave').addEventListener('click', async ()=>{
   const btn = $('#modalSave');
   btn.textContent = 'Salvando tudo...'; btn.disabled = true;
   
-  // Coletar todos os dados do form
   const data = {};
   $$('#modalFormContainer [data-field]').forEach(inp=>{
     let v = inp.value;
@@ -540,60 +539,105 @@ $('#modalSave').addEventListener('click', async ()=>{
   });
 
   try {
-    // 1. Salvar FUNCIONÁRIO
-    const funcPayload = { 
-      nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete 
-    };
+    const funcPayload = { nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete };
     if(integratedCtx.idFuncionario) funcPayload.id = integratedCtx.idFuncionario;
     await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(funcPayload) });
 
-    // 2. Salvar YOUPOINTS (se preenchido)
     if (data.agente) {
-      const ypPayload = { 
-        agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, 
-        tabulacao: data.tabulacao, transf: data.transf 
-      };
+      const ypPayload = { agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, tabulacao: data.tabulacao, transf: data.transf };
       if(data.yp_id) ypPayload.id = data.yp_id;
       await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) });
     }
-
-    // 3. Salvar TEMPO PRODUTIVO (se preenchido)
     if (data.data && data.prod_matricula) {
-      const prodPayload = { 
-        data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct 
-      };
+      const prodPayload = { data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct };
       if(data.prod_id) prodPayload.id = data.prod_id;
       await fetch(`${API_URL}/produtivo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prodPayload) });
     }
-
-    // 4. Salvar INDICADORES (se preenchido)
     if (data.ind_matricula) {
-      const indPayload = { 
-        matricula: data.ind_matricula, colaborador: data.colaborador, 
-        atendidas: data.atendidas, quartil: data.quartil, csat: data.csat 
-      };
+      const indPayload = { matricula: data.ind_matricula, colaborador: data.colaborador, atendidas: data.atendidas, quartil: data.quartil, csat: data.csat };
       if(data.ind_id) indPayload.id = data.ind_id;
       await fetch(`${API_URL}/indicadores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(indPayload) });
     }
-
-    // 5. Salvar BANCO DE HORAS (se preenchido)
     if (data.bh_matricula || data.saldoNeg || data.saldoPos) {
-      const bhPayload = { 
-        matricula: data.bh_matricula, colaborador: data.bh_colaborador, 
-        saldoNeg: data.saldoNeg, saldoPos: data.saldoPos 
-      };
+      const bhPayload = { matricula: data.bh_matricula, colaborador: data.bh_colaborador, saldoNeg: data.saldoNeg, saldoPos: data.saldoPos };
       if(data.bh_id) bhPayload.id = data.bh_id;
       await fetch(`${API_URL}/bh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bhPayload) });
     }
 
-    await carregarDadosDoBanco(); // Recarrega tudo
+    await carregarDadosDoBanco();
     closeModal();
-    toast('Todos os dados foram salvos na nuvem!');
+    toast('Todos os dados foram salvos!');
   } catch (err) {
     console.error(err);
     toast('Erro ao salvar integrado.', true);
   } finally {
     btn.textContent = 'Salvar Tudo na Nuvem'; btn.disabled = false;
+  }
+});
+
+/* =================== MODAL DE CONFIGURAÇÕES GLOBAIS (ABS) =================== */
+$('#btnConfigGlobais').addEventListener('click', () => {
+  if(!isAdmin) return;
+  
+  // Preenche os meses de ABS
+  const absHTML = DB.abs.map((r, i) => `
+    <div class="field">
+      <label>${r.mes}</label>
+      <input type="number" step="any" data-abs-id="${r.id}" data-abs-mes="${r.mes}" value="${r.abs}">
+    </div>
+  `).join('');
+  $('#configAbsGrid').innerHTML = absHTML;
+
+  // Preenche as apresentações
+  const apresHTML = DB.apresentacoes.map(r => `
+    <div class="field">
+      <label>${r.indicador}</label>
+      <input type="text" data-apres-id="${r.id}" value="${r.valor}">
+    </div>
+  `).join('');
+  $('#configApresGrid').innerHTML = apresHTML;
+
+  $('#modalConfigBack').classList.add('open');
+});
+
+$('#modalConfigClose').addEventListener('click', () => $('#modalConfigBack').classList.remove('open'));
+$('#modalConfigCancel').addEventListener('click', () => $('#modalConfigBack').classList.remove('open'));
+
+$('#modalConfigSave').addEventListener('click', async () => {
+  const btn = $('#modalConfigSave');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+
+  try {
+    // Salva ABS
+    const absInputs = $$('#configAbsGrid input');
+    for (let inp of absInputs) {
+      const id = inp.dataset.absId;
+      const mes = inp.dataset.absMes;
+      const val = inp.value === '' ? '' : Number(inp.value);
+      await fetch(`${API_URL}/abs`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, mes, abs: val })
+      });
+    }
+
+    // Salva Apresentações
+    const apresInputs = $$('#configApresGrid input');
+    for (let inp of apresInputs) {
+      const id = inp.dataset.apresId;
+      const val = inp.value;
+      await fetch(`${API_URL}/apresentacoes`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, valor: val })
+      });
+    }
+
+    await carregarDadosDoBanco();
+    $('#modalConfigBack').classList.remove('open');
+    toast('Configurações salvas!');
+  } catch (err) {
+    toast('Erro ao salvar configurações.', true);
+  } finally {
+    btn.textContent = 'Salvar Configurações'; btn.disabled = false;
   }
 });
 
