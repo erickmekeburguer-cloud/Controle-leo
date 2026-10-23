@@ -42,6 +42,15 @@
   .page-head h2{margin:0;font-size:1.4rem;color:var(--brand)}
   .page-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
   .actions-top{display:flex;gap:8px}
+  
+  /* KPI Cards para o Relatório Geral */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+  .kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--brand-2);}
+  .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+  .kpi .value{font-size:1.5rem;font-weight:700;color:var(--brand);margin-top:4px}
+  .kpi.ok{border-left-color:var(--ok)}
+  .kpi.warn{border-left-color:var(--warn)}
+  
   .table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;margin-bottom:24px;}
   table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
   thead th{background:#eef4f9;color:var(--brand);text-align:left;padding:11px 12px;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;}
@@ -108,9 +117,11 @@
 
 <div class="layout">
   <nav class="sidebar" id="sidebar">
+    <h3>Relatórios</h3>
+    <button data-view="relatorio" class="active"><span class="ico">📄</span><span class="txt">RELATÓRIO TOTAL</span></button>
     <h3>Gerenciamento Central</h3>
-    <button data-view="gerenciar" class="active"><span class="ico">⚙️</span><span class="txt">GERENCIAR TUDO</span></button>
-    <h3>Visualização / PDF</h3>
+    <button data-view="gerenciar"><span class="ico">⚙️</span><span class="txt">GERENCIAR TUDO</span></button>
+    <h3>Visualizações Individuais</h3>
     <button data-view="funcionarios"><span class="ico">👥</span><span class="txt">LISTA DE FUNCIONÁRIOS</span></button>
     <button data-view="youpoints"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
     <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS (GERAL)</span></button>
@@ -122,8 +133,36 @@
 
   <main class="content" id="content">
     
+    <!-- TELA DE RELATÓRIO TOTAL -->
+    <section class="view active" id="view-relatorio">
+      <div class="page-head">
+        <div><h2>RELATÓRIO GERAL DA EQUIPE</h2><p>Visão consolidada de todos os colaboradores e seus indicadores.</p></div>
+        <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-relatorio', 'Relatorio_Geral')">⬇ Baixar Relatório PDF</button></div>
+      </div>
+      
+      <div class="kpi-row" id="kpi-relatorio"></div>
+      
+      <div class="table-wrap" id="tabela-relatorio">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Matrícula</th>
+              <th>T. Logado</th>
+              <th>T. Produtivo</th>
+              <th>Atendidas</th>
+              <th>% CSAT</th>
+              <th>% Transf.</th>
+              <th>Saldo BH</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-relatorio"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- TELA DE GERENCIAMENTO CENTRAL -->
-    <section class="view active" id="view-gerenciar">
+    <section class="view" id="view-gerenciar">
       <div class="page-head">
         <div><h2>GERENCIAR DADOS</h2><p>Edite, adicione e apague dados de todas as tabelas.</p></div>
       </div>
@@ -150,7 +189,7 @@
       </div>
     </section>
 
-    <!-- VISUALIZAÇÕES (APENAS LEITURA) -->
+    <!-- VISUALIZAÇÕES INDIVIDUAIS -->
     <section class="view" id="view-funcionarios">
       <div class="page-head">
         <div><h2>LISTA DE FUNCIONÁRIOS</h2><p>Visualização limpa da equipe.</p></div>
@@ -223,7 +262,7 @@
   </main>
 </div>
 
-<!-- MODAL DE EDIÇÃO INTEGRADA (FUNCIONÁRIOS) -->
+<!-- MODAL DE EDIÇÃO INTEGRADA -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
     <div class="modal-head">
@@ -318,10 +357,75 @@ $('#btnRefresh').addEventListener('click', carregarDadosDoBanco);
 
 /* =================== RENDERIZAÇÃO =================== */
 function renderAll(){
-  renderGerenciarView(); 
+  renderRelatorioView(); renderGerenciarView(); 
   renderFuncionariosView(); renderYoupointsView(); renderAbsView(); 
   renderProdutivoView(); renderBhView(); renderIndicadoresView(); renderApresentacoesView();
   applyAdminVisibility();
+}
+
+// NOVA FUNÇÃO: RENDERIZAR RELATÓRIO TOTAL
+function renderRelatorioView(){
+  const tbody = $('#tbody-relatorio');
+  const kpi = $('#kpi-relatorio');
+  
+  // Une os dados de todas as tabelas usando o nome ou matrícula como base
+  const colaboradores = DB.funcionarios.map(f => {
+    // Tenta achar a matrícula. Se não tiver, tenta achar pelo nome no Youpoints
+    const mat = f.matricula;
+    const nameMatch = f.nome.split(' ')[0]; 
+    
+    const yp = DB.youpoints.find(x => (mat && x.matricula === mat) || (x.agente && x.agente.includes(nameMatch))) || {};
+    const ind = DB.indicadores.find(x => (mat && x.matricula === mat) || (x.colaborador && x.colaborador.includes(nameMatch))) || {};
+    const bh = DB.bh.find(x => (mat && x.matricula === mat) || (x.colaborador && x.colaborador.includes(nameMatch))) || {};
+
+    return {
+      nome: f.nome,
+      matricula: mat || '—',
+      logado: yp.logado || 0,
+      produtivo: yp.produtivo || 0,
+      atendidas: ind.atendidas || 0,
+      csat: ind.csat || 0,
+      transf: yp.transf || 0,
+      saldoBh: bh.saldoNeg || bh.saldoPos || '—'
+    };
+  });
+
+  // Se por acaso houver operadores no Youpoints que não estão na lista de funcionários, adiciona eles
+  DB.youpoints.forEach(yp => {
+    if(!colaboradores.find(c => c.nome.includes(yp.agente))) {
+       colaboradores.push({
+         nome: yp.agente, matricula: yp.matricula || '—',
+         logado: yp.logado || 0, produtivo: yp.produtivo || 0,
+         atendidas: 0, csat: 0, transf: yp.transf || 0, saldoBh: '—'
+       });
+    }
+  });
+
+  // Totais para os KPIs
+  const totalColab = colaboradores.length;
+  const totalAtendidas = colaboradores.reduce((acc, c) => acc + Number(c.atendidas), 0);
+  const mediaCsat = colaboradores.filter(c=>c.csat>0).reduce((acc, c) => acc + Number(c.csat), 0) / (colaboradores.filter(c=>c.csat>0).length || 1);
+  const mediaProd = colaboradores.filter(c=>c.produtivo>0).reduce((acc, c) => acc + Number(c.produtivo), 0) / (colaboradores.filter(c=>c.produtivo>0).length || 1);
+
+  kpi.innerHTML = `
+    <div class="kpi"><div class="label">Total de Colaboradores</div><div class="value">${totalColab}</div></div>
+    <div class="kpi"><div class="label">Total de Atendimentos</div><div class="value">${fmtNum(totalAtendidas)}</div></div>
+    <div class="kpi ok"><div class="label">Média CSAT Geral</div><div class="value">${(mediaCsat*100).toFixed(1)}%</div></div>
+    <div class="kpi warn"><div class="label">Média Tempo Produtivo</div><div class="value">${(mediaProd*100).toFixed(1)}%</div></div>
+  `;
+
+  tbody.innerHTML = colaboradores.map(c => `
+    <tr>
+      <td><strong>${c.nome}</strong></td>
+      <td>${c.matricula}</td>
+      <td class="num">${fmtNum(c.logado)}</td>
+      <td class="num">${fmtNum(c.produtivo)}</td>
+      <td class="num">${fmtNum(c.atendidas)}</td>
+      <td class="num">${fmtPct(c.csat)}</td>
+      <td class="num">${fmtPct(c.transf)}</td>
+      <td class="${c.saldoBh.includes('-') || c.saldoBh.includes('Neg') ? 'neg' : 'pos'}">${c.saldoBh}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="8" class="empty">Sem dados para gerar o relatório.</td></tr>`;
 }
 
 // 1. TELA MESTRE (GERENCIAR TUDO)
@@ -484,7 +588,7 @@ function openIntegratedModal(matricula, idFunc) {
   integratedCtx = { idFuncionario: idFunc, matricula: matricula };
   
   const func = idFunc ? DB.funcionarios.find(x=>x.id===idFunc) : {};
-  const yp = matricula ? DB.youpoints.find(x=>x.agente && x.agente.includes(func.nome ? func.nome.split(' ')[0] : '')) || {} : {};
+  const yp = matricula ? DB.youpoints.find(x=>x.matricula === matricula || (x.agente && x.agente.includes(func.nome ? func.nome.split(' ')[0] : ''))) || {} : {};
   const prod = matricula ? DB.produtivo.find(x=>x.matricula === matricula) || {} : {};
   const ind = matricula ? DB.indicadores.find(x=>x.matricula === matricula) || {} : {};
   const bh = matricula ? DB.bh.find(x=>x.matricula === matricula) || {} : {};
@@ -570,7 +674,7 @@ function fieldRow(label, name, val, type='text', extra=''){
     <input type="${type}" data-field="${name}" value="${val!==undefined && val!==null ? String(val).replace(/"/g,'&quot;') : ''}" ${extra} /></div>`;
 }
 
-/* =================== MODAL PADRÃO (PARA OUTRAS TABELAS) =================== */
+/* =================== MODAL PADRÃO =================== */
 let standardCtx = { table: null, id: null };
 
 function openStandardModal(table, id) {
