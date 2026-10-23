@@ -42,12 +42,6 @@
   .page-head h2{margin:0;font-size:1.4rem;color:var(--brand)}
   .page-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
   .actions-top{display:flex;gap:8px}
-  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
-  .kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--brand-2);}
-  .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
-  .kpi .value{font-size:1.5rem;font-weight:700;color:var(--brand);margin-top:4px}
-  .kpi.warn{border-left-color:var(--warn)}
-  .kpi.ok{border-left-color:var(--ok)}
   .table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;margin-bottom:24px;}
   table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
   thead th{background:#eef4f9;color:var(--brand);text-align:left;padding:11px 12px;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;}
@@ -61,7 +55,7 @@
   .reminder-box{background:#fff3cd;color:#856404;padding:4px 8px;border-radius:4px;font-size:.75rem;display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .modal-back{display:none;position:fixed;inset:0;background:rgba(15,32,45,.55);z-index:100;align-items:center;justify-content:center;padding:20px;}
   .modal-back.open{display:flex}
-  .modal{background:var(--card);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+  .modal{background:var(--card);border-radius:14px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
   .modal-head h3{margin:0;font-size:1.05rem;color:var(--brand)}
   .modal-body{padding:18px 20px}
@@ -75,17 +69,20 @@
   .toast.loading{background:var(--brand-2)}
   .empty{padding:30px;text-align:center;color:var(--muted);font-size:.9rem}
   
-  /* Estilos da Tela de Gerenciamento Central */
-  .mgmt-toolbar{display:flex;gap:10px;margin-bottom:15px;background:#fff;padding:15px;border-radius:10px;box-shadow:var(--shadow);flex-wrap:wrap;}
-  .mgmt-toolbar select, .mgmt-toolbar input{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.88rem;}
-  .mgmt-toolbar select{flex:1;min-width:200px;}
-  .mgmt-toolbar input{flex:2;min-width:200px;}
+  /* Estilos do Modal Integrado */
+  .integrated-tabs{display:flex;gap:10px;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;}
+  .integrated-tabs button{background:none;border:none;padding:10px 15px;cursor:pointer;color:var(--muted);font-weight:600;font-size:.9rem;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;}
+  .integrated-tabs button.active{color:var(--brand-2);border-bottom-color:var(--brand-2);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block; animation: fade .2s;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
   @media(max-width:820px){
     nav.sidebar{width:64px;padding:12px 6px}
     nav.sidebar h3,nav.sidebar button span.txt{display:none}
     nav.sidebar button{justify-content:center;padding:12px 0}
     main.content{padding:18px 14px}
+    .form-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -105,9 +102,9 @@
 <div class="layout">
   <nav class="sidebar" id="sidebar">
     <h3>Gerenciamento Central</h3>
-    <button data-view="gerenciar" class="active"><span class="ico">⚙️</span><span class="txt">GERENCIAR DADOS</span></button>
+    <button data-view="gerenciar" class="active"><span class="ico">👥</span><span class="txt">GERENCIAR FUNCIONÁRIOS</span></button>
     <h3>Visualização / PDF</h3>
-    <button data-view="funcionarios"><span class="ico">👥</span><span class="txt">FUNCIONÁRIOS</span></button>
+    <button data-view="funcionarios"><span class="ico">📋</span><span class="txt">LISTA DE FUNCIONÁRIOS</span></button>
     <button data-view="youpoints"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
     <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS</span></button>
     <button data-view="produtivo"><span class="ico">⏱️</span><span class="txt">TEMPO PRODUTIVO</span></button>
@@ -118,39 +115,25 @@
 
   <main class="content" id="content">
     
-    <!-- TELA DE GERENCIAMENTO CENTRAL -->
+    <!-- TELA MESTRE: GERENCIAR FUNCIONÁRIOS -->
     <section class="view active" id="view-gerenciar">
       <div class="page-head">
-        <div><h2>GERENCIAR DADOS</h2><p>Edite, adicione e apague dados de todas as tabelas em um único lugar.</p></div>
+        <div><h2>GERENCIAR FUNCIONÁRIOS</h2><p>Edite os dados do funcionário e todas as suas métricas em um único lugar.</p></div>
+        <button class="btn btn-ok btn-sm adm-only hidden" id="btnNovoFuncionario">+ Novo Funcionário</button>
       </div>
       
-      <div class="mgmt-toolbar">
-        <select id="mgmtSelectTable">
-          <option value="funcionarios">Funcionários</option>
-          <option value="youpoints">Youpoints</option>
-          <option value="abs">Somente ABS</option>
-          <option value="produtivo">Tempo Produtivo</option>
-          <option value="bh">Controle BH</option>
-          <option value="indicadores">Controle Indicadores</option>
-          <option value="apresentacoes">Apresentações</option>
-        </select>
-        <input type="text" id="mgmtSearch" placeholder="🔍 Buscar por nome, matrícula..." />
-        <button class="btn btn-ok btn-sm" id="mgmtAddBtn" style="display:none">+ Adicionar Novo</button>
-      </div>
-
       <div class="table-wrap">
-        <table id="mgmtTable">
-          <!-- O cabeçalho e corpo são preenchidos via JS -->
-          <thead id="mgmtThead"></thead>
-          <tbody id="mgmtTbody"></tbody>
+        <table>
+          <thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th><th class="adm-only hidden">Ações Integradas</th></tr></thead>
+          <tbody id="tbody-gerenciar"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- FUNCIONÁRIOS -->
+    <!-- LISTA SIMPLES DE FUNCIONÁRIOS (Somente Leitura) -->
     <section class="view" id="view-funcionarios">
       <div class="page-head">
-        <div><h2>FUNCIONÁRIOS</h2><p>Gerenciamento de equipe, favoritos e lembretes.</p></div>
+        <div><h2>LISTA DE FUNCIONÁRIOS</h2><p>Visualização limpa da equipe.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-funcionarios', 'Funcionarios')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-funcionarios">
@@ -241,14 +224,30 @@
   </main>
 </div>
 
-<!-- MODAL DE EDIÇÃO -->
+<!-- MODAL DE EDIÇÃO INTEGRADA (TODAS AS ABAS EM UM SÓ LUGAR) -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
-    <div class="modal-head"><h3 id="modalTitle">Editar</h3><button class="btn btn-ghost btn-sm" id="modalClose" style="background:#eef4f9;color:var(--muted)">✕</button></div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-head">
+      <h3 id="modalTitle">Editar Funcionário</h3>
+      <button class="btn btn-ghost btn-sm" id="modalClose" style="background:#eef4f9;color:var(--muted)">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Navegação por Abas do Modal -->
+      <div class="integrated-tabs" id="modalTabs">
+        <button class="active" data-mtab="dados-basicos">1. Dados Básicos</button>
+        <button data-mtab="youpoints">2. Youpoints</button>
+        <button data-mtab="produtivo">3. Tempo Produtivo</button>
+        <button data-mtab="indicadores">4. Indicadores</button>
+        <button data-mtab="bh">5. Banco de Horas</button>
+      </div>
+
+      <div id="modalFormContainer">
+        <!-- O conteúdo é gerado via JS -->
+      </div>
+    </div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" id="modalCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
-      <button class="btn btn-primary btn-sm" id="modalSave">Salvar na Nuvem</button>
+      <button class="btn btn-primary btn-sm" id="modalSave">Salvar Tudo na Nuvem</button>
     </div>
   </div>
 </div>
@@ -304,23 +303,28 @@ $$('#sidebar button').forEach(btn=>{
 });
 $('#btnRefresh').addEventListener('click', carregarDadosDoBanco);
 
-/* =================== RENDERIZAÇÃO DAS TELAS DE VISUALIZAÇÃO =================== */
+/* =================== RENDERIZAÇÃO =================== */
 function renderAll(){
-  renderFuncionariosView(); renderYoupointsView(); renderAbsView(); renderProdutivoView();
-  renderBhView(); renderIndicadoresView(); renderApresentacoesView();
-  renderMgmtTable(); // Renderiza o painel central
+  renderGerenciarView(); renderFuncionariosView(); renderYoupointsView(); 
+  renderAbsView(); renderProdutivoView(); renderBhView(); 
+  renderIndicadoresView(); renderApresentacoesView();
   applyAdminVisibility();
 }
 
-function renderFuncionariosView(){
+// 1. TELA MESTRE (GERENCIAR)
+function renderGerenciarView(){
   const arr = DB.funcionarios;
-  $('#tbody-funcionarios').innerHTML = arr.map(r=>`
+  $('#tbody-gerenciar').innerHTML = arr.map(r=>`
     <tr>
       <td><span class="star ${r.favorito ? 'active' : ''}" onclick="toggleFavorito('${r.id}', ${r.favorito})">★</span></td>
       <td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td>
       <td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td>
+      <td class="adm-only hidden">
+        <button class="btn btn-ok btn-sm" onclick="openIntegratedModal('${r.matricula}', '${r.id}')">✎ Editar Tudo</button>
+        <button class="btn btn-danger btn-sm" data-del="funcionarios" data-id="${r.id}">🗑</button>
+      </td>
     </tr>
-  `).join('') || `<tr><td colspan="5" class="empty">Nenhum funcionário cadastrado.</td></tr>`;
+  `).join('') || `<tr><td colspan="6" class="empty">Nenhum funcionário cadastrado. Clique em "+ Novo Funcionário".</td></tr>`;
 }
 
 async function toggleFavorito(id, isFav){
@@ -329,146 +333,65 @@ async function toggleFavorito(id, isFav){
     await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, favorito: !isFav }) });
     const f = DB.funcionarios.find(x=>x.id===id);
     if(f) f.favorito = !isFav;
-    renderFuncionariosView(); renderMgmtTable();
+    renderAll();
   } catch (err) { toast('Erro ao favoritar.', true); }
 }
 
+// 2. LISTAS DE VISUALIZAÇÃO
+function renderFuncionariosView(){
+  const arr = DB.funcionarios;
+  $('#tbody-funcionarios').innerHTML = arr.map(r=>`
+    <tr>
+      <td><span class="star ${r.favorito ? 'active' : ''}">★</span></td>
+      <td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td>
+      <td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" class="empty">Vazio.</td></tr>`;
+}
+
 function renderYoupointsView(){
-  const arr = DB.youpoints;
-  $('#tbody-youpoints').innerHTML = arr.map(r=>`
+  $('#tbody-youpoints').innerHTML = DB.youpoints.map(r=>`
     <tr><td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td></tr>
   `).join('') || `<tr><td colspan="7" class="empty">Vazio.</td></tr>`;
 }
-
 function renderAbsView(){
-  const arr = DB.abs;
-  $('#tbody-abs').innerHTML = arr.map(r=>`<tr><td>${r.mes}</td><td class="num">${safe(r.abs)}</td></tr>`).join('') || `<tr><td colspan="2" class="empty">Vazio.</td></tr>`;
+  $('#tbody-abs').innerHTML = DB.abs.map(r=>`<tr><td>${r.mes}</td><td class="num">${safe(r.abs)}</td></tr>`).join('') || `<tr><td colspan="2" class="empty">Vazio.</td></tr>`;
 }
-
 function renderProdutivoView(){
-  const arr = DB.produtivo;
-  $('#tbody-produtivo').innerHTML = arr.map(r=>`
+  $('#tbody-produtivo').innerHTML = DB.produtivo.map(r=>`
     <tr><td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td><td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${safe(r.ausente)}</td><td>${safe(r.intervalo)}</td><td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td><td>${safe(r.ocupado)}</td><td>${safe(r.treinamento)}</td><td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td><td>${safe(r.prod)}</td><td class="num">${fmtPct(r.pct)}</td></tr>
   `).join('') || `<tr><td colspan="16" class="empty">Vazio.</td></tr>`;
 }
-
 function renderBhView(){
-  const arr = DB.bh;
-  $('#tbody-bh').innerHTML = arr.map(r=>`
+  $('#tbody-bh').innerHTML = DB.bh.map(r=>`
     <tr><td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td><td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${safe(r.saldoPos)}</td></tr>
   `).join('') || `<tr><td colspan="7" class="empty">Vazio.</td></tr>`;
 }
-
 function renderIndicadoresView(){
-  const arr = DB.indicadores;
-  $('#tbody-indicadores').innerHTML = arr.map(r=>`
+  $('#tbody-indicadores').innerHTML = DB.indicadores.map(r=>`
     <tr><td>${r.matricula}</td><td>${r.colaborador}</td><td class="num">${fmtNum(r.atendidas)}</td><td>${safe(r.quartil)}</td><td class="num">${safe(r.dias)}</td><td class="num">${fmtPct(r.pctProd)}</td><td>${safe(r.tpConectado)}</td><td>${safe(r.tpLogado)}</td><td class="num">${fmtPct(r.pctTransf)}</td><td class="num">${fmtPct(r.csat)}</td><td class="num">${fmtPct(r.tabuladas)}</td></tr>
   `).join('') || `<tr><td colspan="11" class="empty">Vazio.</td></tr>`;
 }
-
 function renderApresentacoesView(){
-  const arr = DB.apresentacoes;
-  $('#tbody-apresentacoes').innerHTML = arr.map(r=>`<tr><td>${r.indicador}</td><td class="num">${safe(r.valor)}</td></tr>`).join('') || `<tr><td colspan="2" class="empty">Vazio.</td></tr>`;
+  $('#tbody-apresentacoes').innerHTML = DB.apresentacoes.map(r=>`<tr><td>${r.indicador}</td><td class="num">${safe(r.valor)}</td></tr>`).join('') || `<tr><td colspan="2" class="empty">Vazio.</td></tr>`;
 }
-
-/* =================== TELA DE GERENCIAMENTO CENTRAL =================== */
-function renderMgmtTable() {
-  const tabela = $('#mgmtSelectTable').value;
-  const busca = $('#mgmtSearch').value.toLowerCase();
-  const btnAdd = $('#mgmtAddBtn');
-  
-  btnAdd.style.display = isAdmin ? 'inline-flex' : 'none';
-  
-  const thead = $('#mgmtThead');
-  const tbody = $('#mgmtTbody');
-  const arr = DB[tabela] || [];
-  
-  let colunas = [];
-  let renderRow = () => '';
-
-  if (tabela === 'funcionarios') {
-    colunas = ['⭐','Nome','Matrícula','Cargo','Lembrete'];
-    renderRow = (r) => `
-      <td><span class="star ${r.favorito ? 'active' : ''}" onclick="toggleFavorito('${r.id}', ${r.favorito})">★</span></td>
-      <td>${r.nome}</td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td><td>${r.lembrete||'—'}</td>
-    `;
-  } else if (tabela === 'youpoints') {
-    colunas = ['Agente','ABS','T. Logado','T. Produtivo','Qualidade','Tabulação','Transf.'];
-    renderRow = (r) => `<td>${r.agente}</td><td>${fmtNum(r.abs)}</td><td>${fmtNum(r.logado)}</td><td>${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td>${fmtNum(r.tabulacao)}</td><td>${fmtNum(r.transf)}</td>`;
-  } else if (tabela === 'abs') {
-    colunas = ['Mês','ABS'];
-    renderRow = (r) => `<td>${r.mes}</td><td>${safe(r.abs)}</td>`;
-  } else if (tabela === 'produtivo') {
-    colunas = ['Data','Matrícula','Conectado','% Prod'];
-    renderRow = (r) => `<td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td>${fmtPct(r.pct)}</td>`;
-  } else if (tabela === 'bh') {
-    colunas = ['Matrícula','Colaborador','Saldo Neg','Saldo Pos'];
-    renderRow = (r) => `<td>${safe(r.matricula || r.matriculaPos)}</td><td>${safe(r.colaborador || r.colaboradorPos)}</td><td class="neg">${safe(r.saldoNeg)}</td><td class="pos">${safe(r.saldoPos)}</td>`;
-  } else if (tabela === 'indicadores') {
-    colunas = ['Matrícula','Colaborador','Atendidas','Quartil','CSAT'];
-    renderRow = (r) => `<td>${r.matricula}</td><td>${r.colaborador}</td><td>${fmtNum(r.atendidas)}</td><td>${safe(r.quartil)}</td><td>${fmtPct(r.csat)}</td>`;
-  } else if (tabela === 'apresentacoes') {
-    colunas = ['Indicador','Valor'];
-    renderRow = (r) => `<td>${r.indicador}</td><td>${safe(r.valor)}</td>`;
-  }
-
-  // Filtro de busca
-  const arrFiltrado = arr.filter(item => {
-    if(!busca) return true;
-    return Object.values(item).some(val => String(val).toLowerCase().includes(busca));
-  });
-
-  // Monta o cabeçalho
-  let thHTML = colunas.map(c => `<th>${c}</th>`).join('');
-  if(isAdmin) thHTML += `<th>Ações</th>`;
-  thead.innerHTML = `<tr>${thHTML}</tr>`;
-
-  // Monta o corpo
-  tbody.innerHTML = arrFiltrado.map(r => `
-    <tr>
-      ${renderRow(r)}
-      ${isAdmin ? `<td>
-        <button class="btn btn-ok btn-sm" data-edit="${tabela}" data-id="${r.id}">✎</button>
-        <button class="btn btn-danger btn-sm" data-del="${tabela}" data-id="${r.id}">🗑</button>
-      </td>` : ''}
-    </tr>
-  `).join('') || `<tr><td colspan="${colunas.length + (isAdmin?1:0)}" class="empty">Nenhum registro encontrado.</td></tr>`;
-}
-
-// Eventos do Gerenciador
-$('#mgmtSelectTable').addEventListener('change', renderMgmtTable);
-$('#mgmtSearch').addEventListener('input', renderMgmtTable);
-$('#mgmtAddBtn').addEventListener('click', () => {
-  const tabela = $('#mgmtSelectTable').value;
-  openModal(tabela, null);
-});
 
 /* =================== GERADOR DE PDF =================== */
 function gerarPDF(tabelaId, nomeArquivo) {
   const elemento = document.getElementById(tabelaId);
   const clone = elemento.cloneNode(true);
-  
-  // Remove colunas de ações
   clone.querySelectorAll('.adm-only').forEach(el => el.remove());
   clone.querySelectorAll('td.adm-only').forEach(el => el.remove());
-
-  clone.style.background = '#fff';
-  clone.style.padding = '20px';
-  clone.style.boxShadow = 'none';
-
-  const opt = {
-    margin: 10, filename: `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`,
-    html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  };
-
+  clone.style.background = '#fff'; clone.style.padding = '20px'; clone.style.boxShadow = 'none';
+  const opt = { margin: 10, filename: `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
   toast('Gerando PDF...', false, true);
   html2pdf().set(opt).from(clone).save().then(() => toast('PDF baixado!')).catch(() => toast('Erro ao gerar PDF.', true));
 }
 
-/* =================== ADMIN E MODAL =================== */
+/* =================== ADMIN =================== */
 function applyAdminVisibility(){
+  $$('.adm-only').forEach(el => isAdmin ? el.classList.remove('hidden') : el.classList.add('hidden'));
   $('#btnLogin').textContent = isAdmin ? '🔓 Sair ADM' : '🔒 Área ADM';
-  renderMgmtTable(); // Atualiza a tabela de gestão para mostrar/esconder coluna de ações
 }
 
 $('#btnLogin').addEventListener('click', ()=>{
@@ -478,84 +401,200 @@ $('#btnLogin').addEventListener('click', ()=>{
   else if(pwd !== null) { toast('Senha incorreta.', true); }
 });
 
-let modalCtx = {table:null, id:null};
-
 document.addEventListener('click', e=>{
-  const editBtn = e.target.closest('[data-edit]');
-  if(editBtn){ openModal(editBtn.dataset.edit, editBtn.dataset.id); return; }
-  
   const delBtn = e.target.closest('[data-del]');
   if(delBtn){
     if(!isAdmin){ toast('Acesso restrito.', true); return; }
-    if(confirm('Deseja excluir este registro do banco de dados?')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
-    return;
+    if(confirm('Deseja excluir o funcionário do banco de dados? (Isso não apaga as métricas dele)')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
   }
 });
 
 async function excluirDoBanco(tabela, id) {
   try {
-    const response = await fetch(`${API_URL}/${tabela}/${id}`, { method: 'DELETE' });
-    if(!response.ok) throw new Error('Erro');
+    await fetch(`${API_URL}/${tabela}/${id}`, { method: 'DELETE' });
     DB[tabela] = DB[tabela].filter(x => x.id !== id);
     renderAll(); toast('Excluído com sucesso!');
   } catch (err) { toast('Erro ao excluir.', true); }
 }
 
-function openModal(table, id){
+/* =================== MODAL DE EDIÇÃO INTEGRADA =================== */
+let integratedCtx = { idFuncionario: null, matricula: null };
+
+$('#btnNovoFuncionario').addEventListener('click', () => openIntegratedModal(null, null));
+
+function openIntegratedModal(matricula, idFunc) {
   if(!isAdmin) return;
-  modalCtx = {table, id};
-  const isNew = id === null;
-  const record = isNew ? {} : DB[table].find(x=>x.id===id) || {};
-  $('#modalTitle').textContent = (isNew?'Novo':'Editar') + ' — ' + table.toUpperCase();
-  $('#modalBody').innerHTML = fieldsOf(table, record);
+  
+  integratedCtx = { idFuncionario: idFunc, matricula: matricula };
+  
+  // Busca registros nas outras tabelas pela matrícula
+  const func = idFunc ? DB.funcionarios.find(x=>x.id===idFunc) : {};
+  const yp = matricula ? DB.youpoints.find(x=>x.agente && x.agente.includes(func.nome ? func.nome.split(' ')[0] : '')) || {} : {};
+  const prod = matricula ? DB.produtivo.find(x=>x.matricula === matricula) || {} : {};
+  const ind = matricula ? DB.indicadores.find(x=>x.matricula === matricula) || {} : {};
+  const bh = matricula ? DB.bh.find(x=>x.matricula === matricula) || {} : {};
+
+  $('#modalTitle').textContent = idFunc ? 'Editar Funcionário Integrado' : 'Novo Funcionário Integrado';
+  $('#modalFormContainer').innerHTML = `
+    <!-- ABA 1: DADOS BÁSICOS -->
+    <div class="tab-content active" id="tab-dados-basicos">
+      <div class="form-grid">
+        ${fieldRow('Nome Completo','nome',func.nome)}
+        ${fieldRow('Matrícula (Chave de ligação)','matricula',func.matricula)}
+        ${fieldRow('Cargo','cargo',func.cargo)}
+        ${fieldRow('Lembrete','lembrete',func.lembrete)}
+      </div>
+    </div>
+
+    <!-- ABA 2: YOUPOINTS -->
+    <div class="tab-content" id="tab-youpoints">
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints (buscadas pelo nome).</p>
+      <div class="form-grid">
+        ${fieldRow('Agente','agente',yp.agente || func.nome)}
+        ${fieldRow('ABS','abs',yp.abs,'number','step="any"')}
+        ${fieldRow('Tempo Logado','logado',yp.logado,'number','step="any"')}
+        ${fieldRow('Tempo Produtivo','produtivo',yp.produtivo,'number','step="any"')}
+        ${fieldRow('Tabulação N/A','tabulacao',yp.tabulacao,'number','step="any"')}
+        ${fieldRow('Transf. Pesquisa','transf',yp.transf,'number','step="any"')}
+      </div>
+      <input type="hidden" data-field="yp_id" value="${yp.id || ''}">
+    </div>
+
+    <!-- ABA 3: TEMPO PRODUTIVO -->
+    <div class="tab-content" id="tab-produtivo">
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Dados do dia (busca pela matrícula).</p>
+      <div class="form-grid">
+        ${fieldRow('Data','data',prod.data)}
+        ${fieldRow('Matrícula','prod_matricula',prod.matricula || func.matricula)}
+        ${fieldRow('Conectado','conectado',prod.conectado)}
+        ${fieldRow('% Produtivo','pct',prod.pct,'number','step="any"')}
+      </div>
+      <input type="hidden" data-field="prod_id" value="${prod.id || ''}">
+    </div>
+
+    <!-- ABA 4: INDICADORES -->
+    <div class="tab-content" id="tab-indicadores">
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Indicadores gerais (busca pela matrícula).</p>
+      <div class="form-grid">
+        ${fieldRow('Matrícula','ind_matricula',ind.matricula || func.matricula)}
+        ${fieldRow('Colaborador','colaborador',ind.colaborador || func.nome)}
+        ${fieldRow('Atendidas','atendidas',ind.atendidas,'number')}
+        ${fieldRow('Quartil (Q1-Q4)','quartil',ind.quartil)}
+        ${fieldRow('CSAT (0 a 1)','csat',ind.csat,'number','step="any"')}
+      </div>
+      <input type="hidden" data-field="ind_id" value="${ind.id || ''}">
+    </div>
+
+    <!-- ABA 5: BANCO DE HORAS -->
+    <div class="tab-content" id="tab-bh">
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Saldo de Banco de Horas (busca pela matrícula).</p>
+      <div class="form-grid">
+        ${fieldRow('Matrícula (Neg)','bh_matricula',bh.matricula || func.matricula)}
+        ${fieldRow('Colaborador','bh_colaborador',bh.colaborador || func.nome)}
+        ${fieldRow('Saldo Negativo','saldoNeg',bh.saldoNeg)}
+        ${fieldRow('Saldo Positivo','saldoPos',bh.saldoPos)}
+      </div>
+      <input type="hidden" data-field="bh_id" value="${bh.id || ''}">
+    </div>
+  `;
+
+  // Ativar abas
+  $$('#modalTabs button').forEach(btn => btn.classList.remove('active'));
+  $$('#modalTabs button')[0].classList.add('active');
+  $$('.tab-content').forEach(c => c.classList.remove('active'));
+  $('#tab-dados-basicos').classList.add('active');
+
   $('#modalBack').classList.add('open');
 }
+
+// Trocar de aba no Modal
+$$('#modalTabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('#modalTabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.tab-content').forEach(c => c.classList.remove('active'));
+    $('#tab-' + btn.dataset.mtab).classList.add('active');
+  });
+});
 
 function closeModal(){ $('#modalBack').classList.remove('open'); }
 $('#modalClose').addEventListener('click', closeModal);
 $('#modalCancel').addEventListener('click', closeModal);
-$('#modalBack').addEventListener('click', e=>{ if(e.target.id==='modalBack') closeModal(); });
 
 function fieldRow(label, name, val, type='text', extra=''){
   return `<div class="field"><label>${label}</label>
     <input type="${type}" data-field="${name}" value="${val!==undefined && val!==null ? String(val).replace(/"/g,'&quot;') : ''}" ${extra} /></div>`;
 }
-function fieldArea(label, name, val){
-  return `<div class="field"><label>${label}</label>
-    <textarea data-field="${name}" rows="3">${val||''}</textarea></div>`;
-}
 
-function fieldsOf(table, r){
-  switch(table){
-    case 'funcionarios': return `${fieldRow('Nome','nome',r.nome)} ${fieldRow('Matrícula','matricula',r.matricula)} ${fieldRow('Cargo','cargo',r.cargo)} ${fieldArea('Lembrete','lembrete',r.lembrete)}`;
-    case 'youpoints': return `${fieldRow('Agente','agente',r.agente)} ${fieldRow('ABS','abs',r.abs,'number','step="any"')} ${fieldRow('Logado','logado',r.logado,'number','step="any"')} ${fieldRow('Produtivo','produtivo',r.produtivo,'number','step="any"')} ${fieldRow('Qualidade','qualidade',r.qualidade)} ${fieldRow('Tabulação','tabulacao',r.tabulacao,'number','step="any"')} ${fieldRow('Transf.','transf',r.transf,'number','step="any"')}`;
-    case 'abs': return `${fieldRow('Mês','mes',r.mes)} ${fieldRow('ABS','abs',r.abs,'number','step="any"')}`;
-    case 'produtivo': return `${fieldRow('Data','data',r.data)} ${fieldRow('Matrícula','matricula',r.matricula)} ${fieldRow('Conectado','conectado',r.conectado)} ${fieldRow('% Produtivo','pct',r.pct,'number','step="any"')}`;
-    case 'bh': return `${fieldRow('Matrícula (Neg)','matricula',r.matricula)} ${fieldRow('Colaborador (Neg)','colaborador',r.colaborador)} ${fieldRow('Saldo Neg','saldoNeg',r.saldoNeg)} ${fieldRow('Matrícula (Pos)','matriculaPos',r.matriculaPos)} ${fieldRow('Colaborador (Pos)','colaboradorPos',r.colaboradorPos)} ${fieldRow('Saldo Pos','saldoPos',r.saldoPos)}`;
-    case 'indicadores': return `${fieldRow('Matrícula','matricula',r.matricula)} ${fieldRow('Colaborador','colaborador',r.colaborador)} ${fieldRow('Atendidas','atendidas',r.atendidas,'number')} ${fieldRow('Quartil','quartil',r.quartil)} ${fieldRow('CSAT','csat',r.csat,'number','step="any"')}`;
-    case 'apresentacoes': return `${fieldRow('Indicador','indicador',r.indicador)} ${fieldRow('Valor','valor',r.valor)}`;
-  }
-  return '';
-}
-
+// SALVAR TUDO (O Pulo do Gato)
 $('#modalSave').addEventListener('click', async ()=>{
-  const {table, id} = modalCtx;
+  const btn = $('#modalSave');
+  btn.textContent = 'Salvando tudo...'; btn.disabled = true;
+  
+  // Coletar todos os dados do form
   const data = {};
-  $$('#modalBody [data-field]').forEach(inp=>{
+  $$('#modalFormContainer [data-field]').forEach(inp=>{
     let v = inp.value;
     if(inp.type === 'number'){ v = v === '' ? '' : Number(v); }
     data[inp.dataset.field] = v;
   });
-  if(id) data.id = id;
-  
+
   try {
-    $('#modalSave').textContent = 'Salvando...'; $('#modalSave').disabled = true;
-    const response = await fetch(`${API_URL}/${table}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if(!response.ok) throw new Error('Erro');
-    await carregarDadosDoBanco();
-    closeModal(); toast('Salvo na nuvem!');
-  } catch (err) { toast('Erro ao salvar.', true); } 
-  finally { $('#modalSave').textContent = 'Salvar na Nuvem'; $('#modalSave').disabled = false; }
+    // 1. Salvar FUNCIONÁRIO
+    const funcPayload = { 
+      nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete 
+    };
+    if(integratedCtx.idFuncionario) funcPayload.id = integratedCtx.idFuncionario;
+    await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(funcPayload) });
+
+    // 2. Salvar YOUPOINTS (se preenchido)
+    if (data.agente) {
+      const ypPayload = { 
+        agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, 
+        tabulacao: data.tabulacao, transf: data.transf 
+      };
+      if(data.yp_id) ypPayload.id = data.yp_id;
+      await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) });
+    }
+
+    // 3. Salvar TEMPO PRODUTIVO (se preenchido)
+    if (data.data && data.prod_matricula) {
+      const prodPayload = { 
+        data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct 
+      };
+      if(data.prod_id) prodPayload.id = data.prod_id;
+      await fetch(`${API_URL}/produtivo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prodPayload) });
+    }
+
+    // 4. Salvar INDICADORES (se preenchido)
+    if (data.ind_matricula) {
+      const indPayload = { 
+        matricula: data.ind_matricula, colaborador: data.colaborador, 
+        atendidas: data.atendidas, quartil: data.quartil, csat: data.csat 
+      };
+      if(data.ind_id) indPayload.id = data.ind_id;
+      await fetch(`${API_URL}/indicadores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(indPayload) });
+    }
+
+    // 5. Salvar BANCO DE HORAS (se preenchido)
+    if (data.bh_matricula || data.saldoNeg || data.saldoPos) {
+      const bhPayload = { 
+        matricula: data.bh_matricula, colaborador: data.bh_colaborador, 
+        saldoNeg: data.saldoNeg, saldoPos: data.saldoPos 
+      };
+      if(data.bh_id) bhPayload.id = data.bh_id;
+      await fetch(`${API_URL}/bh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bhPayload) });
+    }
+
+    await carregarDadosDoBanco(); // Recarrega tudo
+    closeModal();
+    toast('Todos os dados foram salvos na nuvem!');
+  } catch (err) {
+    console.error(err);
+    toast('Erro ao salvar integrado.', true);
+  } finally {
+    btn.textContent = 'Salvar Tudo na Nuvem'; btn.disabled = false;
+  }
 });
 
 carregarDadosDoBanco();
