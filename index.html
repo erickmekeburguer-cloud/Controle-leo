@@ -77,6 +77,12 @@
   .tab-content.active{display:block; animation: fade .2s;}
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
+  /* Estilos do Gerenciador Central */
+  .mgmt-toolbar{display:flex;gap:10px;margin-bottom:15px;background:#fff;padding:15px;border-radius:10px;box-shadow:var(--shadow);flex-wrap:wrap;}
+  .mgmt-toolbar select, .mgmt-toolbar input{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:.88rem;}
+  .mgmt-toolbar select{flex:1;min-width:200px;}
+  .mgmt-toolbar input{flex:2;min-width:200px;}
+
   @media(max-width:820px){
     nav.sidebar{width:64px;padding:12px 6px}
     nav.sidebar h3,nav.sidebar button span.txt{display:none}
@@ -103,9 +109,9 @@
 <div class="layout">
   <nav class="sidebar" id="sidebar">
     <h3>Gerenciamento Central</h3>
-    <button data-view="gerenciar" class="active"><span class="ico">👥</span><span class="txt">GERENCIAR FUNCIONÁRIOS</span></button>
+    <button data-view="gerenciar" class="active"><span class="ico">⚙️</span><span class="txt">GERENCIAR TUDO</span></button>
     <h3>Visualização / PDF</h3>
-    <button data-view="funcionarios"><span class="ico">📋</span><span class="txt">LISTA DE FUNCIONÁRIOS</span></button>
+    <button data-view="funcionarios"><span class="ico">👥</span><span class="txt">LISTA DE FUNCIONÁRIOS</span></button>
     <button data-view="youpoints"><span class="ico">📊</span><span class="txt">YOUPOINTS</span></button>
     <button data-view="abs"><span class="ico">📅</span><span class="txt">SOMENTE ABS</span></button>
     <button data-view="produtivo"><span class="ico">⏱️</span><span class="txt">TEMPO PRODUTIVO</span></button>
@@ -116,52 +122,58 @@
 
   <main class="content" id="content">
     
-    <!-- TELA MESTRE: GERENCIAR FUNCIONÁRIOS -->
+    <!-- TELA DE GERENCIAMENTO CENTRAL -->
     <section class="view active" id="view-gerenciar">
       <div class="page-head">
-        <div><h2>GERENCIAR FUNCIONÁRIOS</h2><p>Edite os dados do funcionário e todas as suas métricas em um único lugar.</p></div>
-        <button class="btn btn-ok btn-sm adm-only hidden" id="btnNovoFuncionario">+ Novo Funcionário</button>
+        <div><h2>GERENCIAR DADOS</h2><p>Edite, adicione e apague dados de todas as tabelas.</p></div>
       </div>
+      
+      <div class="mgmt-toolbar">
+        <select id="mgmtSelectTable">
+          <option value="funcionarios">Funcionários (Integrado)</option>
+          <option value="abs">Somente ABS</option>
+          <option value="youpoints">Youpoints (Avulso)</option>
+          <option value="produtivo">Tempo Produtivo (Avulso)</option>
+          <option value="bh">Controle BH (Avulso)</option>
+          <option value="indicadores">Controle Indicadores (Avulso)</option>
+          <option value="apresentacoes">Apresentações</option>
+        </select>
+        <input type="text" id="mgmtSearch" placeholder="🔍 Buscar..." />
+        <button class="btn btn-ok btn-sm" id="mgmtAddBtn" style="display:none">+ Adicionar</button>
+      </div>
+
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th><th class="adm-only hidden">Ações Integradas</th></tr></thead>
-          <tbody id="tbody-gerenciar"></tbody>
+        <table id="mgmtTable">
+          <thead id="mgmtThead"></thead>
+          <tbody id="mgmtTbody"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- LISTA SIMPLES DE FUNCIONÁRIOS -->
+    <!-- VISUALIZAÇÕES (APENAS LEITURA) -->
     <section class="view" id="view-funcionarios">
       <div class="page-head">
         <div><h2>LISTA DE FUNCIONÁRIOS</h2><p>Visualização limpa da equipe.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-funcionarios', 'Funcionarios')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-funcionarios">
-        <table>
-          <thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th></tr></thead>
-          <tbody id="tbody-funcionarios"></tbody>
-        </table>
+        <table><thead><tr><th>⭐</th><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Lembrete</th></tr></thead><tbody id="tbody-funcionarios"></tbody></table>
       </div>
     </section>
 
-    <!-- YOUPOINTS -->
     <section class="view" id="view-youpoints">
       <div class="page-head">
         <div><h2>YOUPOINTS</h2><p>Indicadores de tempo logado, produtivo, tabulação e transferência.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-youpoints', 'Youpoints')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-youpoints">
-        <table>
-          <thead><tr><th>Agente</th><th>ABS</th><th>Tempo Logado</th><th>Tempo Produtivo</th><th>Qualidade</th><th>Tabulação N/A</th><th>Transf. Pesquisa</th></tr></thead>
-          <tbody id="tbody-youpoints"></tbody>
-        </table>
+        <table><thead><tr><th>Agente</th><th>ABS</th><th>Tempo Logado</th><th>Tempo Produtivo</th><th>Qualidade</th><th>Tabulação N/A</th><th>Transf. Pesquisa</th></tr></thead><tbody id="tbody-youpoints"></tbody></table>
       </div>
     </section>
 
-    <!-- SOMENTE ABS -->
     <section class="view" id="view-abs">
       <div class="page-head">
-        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado (Geral).</p></div>
+        <div><h2>SOMENTE ABS</h2><p>Absenteísmo mensal consolidado.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-abs', 'ABS')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-abs">
@@ -169,49 +181,36 @@
       </div>
     </section>
 
-    <!-- TEMPO PRODUTIVO -->
     <section class="view" id="view-produtivo">
       <div class="page-head">
         <div><h2>TEMPO PRODUTIVO</h2><p>Resultados diários por matrícula.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-produtivo', 'TempoProdutivo')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-produtivo">
-        <table>
-          <thead><tr><th>Data</th><th>Matrícula</th><th>Conectado</th><th>Cont. Disp.</th><th>Disponível</th><th>Cont. Ausente</th><th>Ausente</th><th>Intervalo</th><th>Refeição</th><th>Reunião</th><th>Ocupado</th><th>Treinamento</th><th>Estouro Pausas</th><th>Tempo Improd.</th><th>Tempo Prod.</th><th>% Produtivo</th></tr></thead>
-          <tbody id="tbody-produtivo"></tbody>
-        </table>
+        <table><thead><tr><th>Data</th><th>Matrícula</th><th>Conectado</th><th>Cont. Disp.</th><th>Disponível</th><th>Cont. Ausente</th><th>Ausente</th><th>Intervalo</th><th>Refeição</th><th>Reunião</th><th>Ocupado</th><th>Treinamento</th><th>Estouro Pausas</th><th>Tempo Improd.</th><th>Tempo Prod.</th><th>% Produtivo</th></tr></thead><tbody id="tbody-produtivo"></tbody></table>
       </div>
     </section>
 
-    <!-- CONTROLE BH -->
     <section class="view" id="view-bh">
       <div class="page-head">
         <div><h2>CONTROLE BH</h2><p>Saldo de banco de horas.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-bh', 'ControleBH')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-bh">
-        <table>
-          <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Saldo Negativo</th><th>Prazo</th><th>Matrícula (Pos.)</th><th>Colaborador (Pos.)</th><th>Saldo Positivo</th></tr></thead>
-          <tbody id="tbody-bh"></tbody>
-        </table>
+        <table><thead><tr><th>Matrícula</th><th>Colaborador</th><th>Saldo Negativo</th><th>Prazo</th><th>Matrícula (Pos.)</th><th>Colaborador (Pos.)</th><th>Saldo Positivo</th></tr></thead><tbody id="tbody-bh"></tbody></table>
       </div>
     </section>
 
-    <!-- INDICADORES -->
     <section class="view" id="view-indicadores">
       <div class="page-head">
         <div><h2>CONTROLE INDICADORES</h2><p>Atendimentos, quartil, produtividade e CSAT.</p></div>
         <div class="actions-top"><button class="btn btn-pdf btn-sm" onclick="gerarPDF('tabela-indicadores', 'Indicadores')">⬇ Baixar PDF</button></div>
       </div>
       <div class="table-wrap" id="tabela-indicadores">
-        <table>
-          <thead><tr><th>Matrícula</th><th>Colaborador</th><th>Atendidas</th><th>Quartil</th><th>Dias Trab.</th><th>% Produtivo</th><th>Tp Conectado</th><th>Tp Logado</th><th>% Transf. Pesquisa</th><th>% CSAT</th><th>% Tabuladas</th></tr></thead>
-          <tbody id="tbody-indicadores"></tbody>
-        </table>
+        <table><thead><tr><th>Matrícula</th><th>Colaborador</th><th>Atendidas</th><th>Quartil</th><th>Dias Trab.</th><th>% Produtivo</th><th>Tp Conectado</th><th>Tp Logado</th><th>% Transf. Pesquisa</th><th>% CSAT</th><th>% Tabuladas</th></tr></thead><tbody id="tbody-indicadores"></tbody></table>
       </div>
     </section>
 
-    <!-- APRESENTAÇÕES -->
     <section class="view" id="view-apresentacoes">
       <div class="page-head">
         <div><h2>APRESENTAÇÕES</h2><p>Resumo de ABS, ofensores e comparativos.</p></div>
@@ -248,25 +247,19 @@
   </div>
 </div>
 
-<!-- MODAL DE CONFIGURAÇÕES GLOBAIS (ABS E APRESENTAÇÕES) -->
+<!-- MODAL DE CONFIGURAÇÕES GLOBAIS (APENAS APRESENTAÇÕES) -->
 <div class="modal-back" id="modalConfigBack">
   <div class="modal">
     <div class="modal-head">
-      <h3>Configurações Globais</h3>
+      <h3>Configurações Globais (Apresentações)</h3>
       <button class="btn btn-ghost btn-sm" id="modalConfigClose" style="background:#eef4f9;color:var(--muted)">✕</button>
     </div>
     <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
-      <h4 style="color:var(--brand); margin-bottom:10px;">Somente ABS (Geral)</h4>
-      <div class="form-grid" id="configAbsGrid"></div>
-      
-      <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;">
-      
-      <h4 style="color:var(--brand); margin-bottom:10px;">Apresentações</h4>
       <div class="form-grid" id="configApresGrid"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" id="modalConfigCancel" style="background:#eef4f9;color:var(--muted)">Cancelar</button>
-      <button class="btn btn-primary btn-sm" id="modalConfigSave">Salvar Configurações</button>
+      <button class="btn btn-primary btn-sm" id="modalConfigSave">Salvar</button>
     </div>
   </div>
 </div>
@@ -325,36 +318,78 @@ $('#btnRefresh').addEventListener('click', carregarDadosDoBanco);
 
 /* =================== RENDERIZAÇÃO =================== */
 function renderAll(){
-  renderGerenciarView(); renderFuncionariosView(); renderYoupointsView(); 
-  renderAbsView(); renderProdutivoView(); renderBhView(); 
-  renderIndicadoresView(); renderApresentacoesView();
+  renderGerenciarView(); 
+  renderFuncionariosView(); renderYoupointsView(); renderAbsView(); 
+  renderProdutivoView(); renderBhView(); renderIndicadoresView(); renderApresentacoesView();
   applyAdminVisibility();
 }
 
-// 1. TELA MESTRE (GERENCIAR)
+// 1. TELA MESTRE (GERENCIAR TUDO)
 function renderGerenciarView(){
-  const arr = DB.funcionarios;
-  $('#tbody-gerenciar').innerHTML = arr.map(r=>`
-    <tr>
+  const tabela = $('#mgmtSelectTable').value;
+  const busca = $('#mgmtSearch').value.toLowerCase();
+  const btnAdd = $('#mgmtAddBtn');
+  btnAdd.style.display = isAdmin ? 'inline-flex' : 'none';
+  
+  const thead = $('#mgmtThead');
+  const tbody = $('#mgmtTbody');
+  const arr = DB[tabela] || [];
+  
+  let colunas = [];
+  let renderRow = () => '';
+
+  if (tabela === 'funcionarios') {
+    colunas = ['⭐','Nome','Matrícula','Cargo','Lembrete'];
+    renderRow = (r) => `
       <td><span class="star ${r.favorito ? 'active' : ''}" onclick="toggleFavorito('${r.id}', ${r.favorito})">★</span></td>
-      <td><strong>${r.nome}</strong></td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td>
-      <td>${r.lembrete ? `<span class="reminder-box" title="${r.lembrete}">📝 ${r.lembrete}</span>` : '—'}</td>
-      <td class="adm-only hidden">
-        <button class="btn btn-ok btn-sm" onclick="openIntegratedModal('${r.matricula}', '${r.id}')">✎ Editar Tudo</button>
-        <button class="btn btn-danger btn-sm" data-del="funcionarios" data-id="${r.id}">🗑</button>
-      </td>
+      <td>${r.nome}</td><td>${safe(r.matricula)}</td><td>${safe(r.cargo)}</td><td>${r.lembrete||'—'}</td>
+    `;
+  } else if (tabela === 'abs') {
+    colunas = ['Mês','ABS'];
+    renderRow = (r) => `<td>${r.mes}</td><td>${safe(r.abs)}</td>`;
+  } else if (tabela === 'youpoints') {
+    colunas = ['Agente','ABS','T. Logado','T. Produtivo','Qualidade','Tabulação','Transf.'];
+    renderRow = (r) => `<td>${r.agente}</td><td>${fmtNum(r.abs)}</td><td>${fmtNum(r.logado)}</td><td>${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td>${fmtNum(r.tabulacao)}</td><td>${fmtNum(r.transf)}</td>`;
+  } else if (tabela === 'produtivo') {
+    colunas = ['Data','Matrícula','Conectado','% Prod'];
+    renderRow = (r) => `<td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td>${fmtPct(r.pct)}</td>`;
+  } else if (tabela === 'bh') {
+    colunas = ['Matrícula','Colaborador','Saldo Neg','Saldo Pos'];
+    renderRow = (r) => `<td>${safe(r.matricula || r.matriculaPos)}</td><td>${safe(r.colaborador || r.colaboradorPos)}</td><td class="neg">${safe(r.saldoNeg)}</td><td class="pos">${safe(r.saldoPos)}</td>`;
+  } else if (tabela === 'indicadores') {
+    colunas = ['Matrícula','Colaborador','Atendidas','Quartil','CSAT'];
+    renderRow = (r) => `<td>${r.matricula}</td><td>${r.colaborador}</td><td>${fmtNum(r.atendidas)}</td><td>${safe(r.quartil)}</td><td>${fmtPct(r.csat)}</td>`;
+  } else if (tabela === 'apresentacoes') {
+    colunas = ['Indicador','Valor'];
+    renderRow = (r) => `<td>${r.indicador}</td><td>${safe(r.valor)}</td>`;
+  }
+
+  const arrFiltrado = arr.filter(item => {
+    if(!busca) return true;
+    return Object.values(item).some(val => String(val).toLowerCase().includes(busca));
+  });
+
+  let thHTML = colunas.map(c => `<th>${c}</th>`).join('');
+  if(isAdmin) thHTML += `<th>Ações</th>`;
+  thead.innerHTML = `<tr>${thHTML}</tr>`;
+
+  tbody.innerHTML = arrFiltrado.map(r => `
+    <tr>
+      ${renderRow(r)}
+      ${isAdmin ? `<td>
+        <button class="btn btn-ok btn-sm" onclick="handleEditClick('${tabela}', '${r.id}', '${r.matricula || ''}')">✎</button>
+        <button class="btn btn-danger btn-sm" data-del="${tabela}" data-id="${r.id}">🗑</button>
+      </td>` : ''}
     </tr>
-  `).join('') || `<tr><td colspan="6" class="empty">Nenhum funcionário cadastrado. Clique em "+ Novo Funcionário".</td></tr>`;
+  `).join('') || `<tr><td colspan="${colunas.length + (isAdmin?1:0)}" class="empty">Nenhum registro encontrado.</td></tr>`;
 }
 
-async function toggleFavorito(id, isFav){
-  if(!isAdmin){ toast('Acesso restrito ao ADM.', true); return; }
-  try {
-    await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, favorito: !isFav }) });
-    const f = DB.funcionarios.find(x=>x.id===id);
-    if(f) f.favorito = !isFav;
-    renderAll();
-  } catch (err) { toast('Erro ao favoritar.', true); }
+function handleEditClick(tabela, id, matricula) {
+  if (tabela === 'funcionarios') {
+    openIntegratedModal(matricula, id);
+  } else {
+    openStandardModal(tabela, id);
+  }
 }
 
 // 2. LISTAS DE VISUALIZAÇÃO
@@ -390,6 +425,15 @@ function renderApresentacoesView(){
   $('#tbody-apresentacoes').innerHTML = DB.apresentacoes.map(r=>`<tr><td>${r.indicador}</td><td class="num">${safe(r.valor)}</td></tr>`).join('') || `<tr><td colspan="2" class="empty">Vazio.</td></tr>`;
 }
 
+// Eventos do Gerenciador
+$('#mgmtSelectTable').addEventListener('change', () => { $('#mgmtSearch').value = ''; renderGerenciarView(); });
+$('#mgmtSearch').addEventListener('input', renderGerenciarView);
+$('#mgmtAddBtn').addEventListener('click', () => {
+  const tabela = $('#mgmtSelectTable').value;
+  if (tabela === 'funcionarios') openIntegratedModal(null, null);
+  else openStandardModal(tabela, null);
+});
+
 /* =================== GERADOR DE PDF =================== */
 function gerarPDF(tabelaId, nomeArquivo) {
   const elemento = document.getElementById(tabelaId);
@@ -404,9 +448,9 @@ function gerarPDF(tabelaId, nomeArquivo) {
 
 /* =================== ADMIN =================== */
 function applyAdminVisibility(){
-  $$('.adm-only').forEach(el => isAdmin ? el.classList.remove('hidden') : el.classList.add('hidden'));
   $('#btnLogin').textContent = isAdmin ? '🔓 Sair ADM' : '🔒 Área ADM';
   $('#btnConfigGlobais').style.display = isAdmin ? 'inline-flex' : 'none';
+  renderGerenciarView(); // Atualiza a tabela central para mostrar/esconder coluna de ações
 }
 
 $('#btnLogin').addEventListener('click', ()=>{
@@ -420,7 +464,7 @@ document.addEventListener('click', e=>{
   const delBtn = e.target.closest('[data-del]');
   if(delBtn){
     if(!isAdmin){ toast('Acesso restrito.', true); return; }
-    if(confirm('Deseja excluir o funcionário?')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
+    if(confirm('Deseja excluir este registro?')) excluirDoBanco(delBtn.dataset.del, delBtn.dataset.id);
   }
 });
 
@@ -432,10 +476,8 @@ async function excluirDoBanco(tabela, id) {
   } catch (err) { toast('Erro ao excluir.', true); }
 }
 
-/* =================== MODAL DE EDIÇÃO INTEGRADA (FUNCIONÁRIOS) =================== */
+/* =================== MODAL INTEGRADO (FUNCIONÁRIOS) =================== */
 let integratedCtx = { idFuncionario: null, matricula: null };
-
-$('#btnNovoFuncionario').addEventListener('click', () => openIntegratedModal(null, null));
 
 function openIntegratedModal(matricula, idFunc) {
   if(!isAdmin) return;
@@ -458,7 +500,7 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
     </div>
     <div class="tab-content" id="tab-youpoints">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints (buscadas pelo nome).</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints.</p>
       <div class="form-grid">
         ${fieldRow('Agente','agente',yp.agente || func.nome)}
         ${fieldRow('ABS','abs',yp.abs,'number','step="any"')}
@@ -470,7 +512,7 @@ function openIntegratedModal(matricula, idFunc) {
       <input type="hidden" data-field="yp_id" value="${yp.id || ''}">
     </div>
     <div class="tab-content" id="tab-produtivo">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Dados do dia (busca pela matrícula).</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Dados do dia.</p>
       <div class="form-grid">
         ${fieldRow('Data','data',prod.data)}
         ${fieldRow('Matrícula','prod_matricula',prod.matricula || func.matricula)}
@@ -480,7 +522,7 @@ function openIntegratedModal(matricula, idFunc) {
       <input type="hidden" data-field="prod_id" value="${prod.id || ''}">
     </div>
     <div class="tab-content" id="tab-indicadores">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Indicadores gerais (busca pela matrícula).</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Indicadores gerais.</p>
       <div class="form-grid">
         ${fieldRow('Matrícula','ind_matricula',ind.matricula || func.matricula)}
         ${fieldRow('Colaborador','colaborador',ind.colaborador || func.nome)}
@@ -491,7 +533,7 @@ function openIntegratedModal(matricula, idFunc) {
       <input type="hidden" data-field="ind_id" value="${ind.id || ''}">
     </div>
     <div class="tab-content" id="tab-bh">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Saldo de Banco de Horas (busca pela matrícula).</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Saldo de Banco de Horas.</p>
       <div class="form-grid">
         ${fieldRow('Matrícula (Neg)','bh_matricula',bh.matricula || func.matricula)}
         ${fieldRow('Colaborador','bh_colaborador',bh.colaborador || func.nome)}
@@ -568,35 +610,88 @@ $('#modalSave').addEventListener('click', async ()=>{
     closeModal();
     toast('Todos os dados foram salvos!');
   } catch (err) {
-    console.error(err);
     toast('Erro ao salvar integrado.', true);
   } finally {
     btn.textContent = 'Salvar Tudo na Nuvem'; btn.disabled = false;
   }
 });
 
-/* =================== MODAL DE CONFIGURAÇÕES GLOBAIS (ABS) =================== */
+/* =================== MODAL PADRÃO (PARA OUTRAS TABELAS) =================== */
+let standardCtx = { table: null, id: null };
+
+function openStandardModal(table, id) {
+  if(!isAdmin) return;
+  standardCtx = { table, id };
+  const isNew = id === null;
+  const record = isNew ? {} : DB[table].find(x=>x.id===id) || {};
+  
+  let fieldsHTML = '';
+  if (table === 'abs') fieldsHTML = `${fieldRow('Mês','mes',record.mes)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')}`;
+  else if (table === 'youpoints') fieldsHTML = `${fieldRow('Agente','agente',record.agente)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')} ${fieldRow('Logado','logado',record.logado,'number','step="any"')} ${fieldRow('Produtivo','produtivo',record.produtivo,'number','step="any"')} ${fieldRow('Qualidade','qualidade',record.qualidade)} ${fieldRow('Tabulação','tabulacao',record.tabulacao,'number','step="any"')} ${fieldRow('Transf.','transf',record.transf,'number','step="any"')}`;
+  else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data)} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct,'number','step="any"')}`;
+  else if (table === 'bh') fieldsHTML = `${fieldRow('Matrícula (Neg)','matricula',record.matricula)} ${fieldRow('Colaborador (Neg)','colaborador',record.colaborador)} ${fieldRow('Saldo Neg','saldoNeg',record.saldoNeg)} ${fieldRow('Matrícula (Pos)','matriculaPos',record.matriculaPos)} ${fieldRow('Colaborador (Pos)','colaboradorPos',record.colaboradorPos)} ${fieldRow('Saldo Pos','saldoPos',record.saldoPos)}`;
+  else if (table === 'indicadores') fieldsHTML = `${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Colaborador','colaborador',record.colaborador)} ${fieldRow('Atendidas','atendidas',record.atendidas,'number')} ${fieldRow('Quartil','quartil',record.quartil)} ${fieldRow('CSAT','csat',record.csat,'number','step="any"')}`;
+  else if (table === 'apresentacoes') fieldsHTML = `${fieldRow('Indicador','indicador',record.indicador)} ${fieldRow('Valor','valor',record.valor)}`;
+
+  $('#modalTitle').textContent = (isNew?'Novo':'Editar') + ' — ' + table.toUpperCase();
+  $('#modalFormContainer').innerHTML = `
+    <div class="tab-content active" style="display:block;">
+      <div class="form-grid">${fieldsHTML}</div>
+    </div>
+  `;
+  
+  $$('#modalTabs').forEach(t => t.style.display = 'none'); // Esconde as abas do integrado
+  $('#modalBack').classList.add('open');
+}
+
+// Sobrescreve o botão salvar para lidar com os dois modais
+$('#modalSave').onclick = async function() {
+  const btn = $('#modalSave');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  
+  const data = {};
+  $$('#modalFormContainer [data-field]').forEach(inp=>{
+    let v = inp.value;
+    if(inp.type === 'number'){ v = v === '' ? '' : Number(v); }
+    data[inp.dataset.field] = v;
+  });
+
+  try {
+    if (standardCtx.table) {
+      // Salvamento Padrão
+      if (standardCtx.id) data.id = standardCtx.id;
+      await fetch(`${API_URL}/${standardCtx.table}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    } else {
+      // Salvamento Integrado (já estava no código acima)
+      const funcPayload = { nome: data.nome, matricula: data.matricula, cargo: data.cargo, lembrete: data.lembrete };
+      if(integratedCtx.idFuncionario) funcPayload.id = integratedCtx.idFuncionario;
+      await fetch(`${API_URL}/funcionarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(funcPayload) });
+
+      if (data.agente) { const ypPayload = { agente: data.agente, abs: data.abs, logado: data.logado, produtivo: data.produtivo, tabulacao: data.tabulacao, transf: data.transf }; if(data.yp_id) ypPayload.id = data.yp_id; await fetch(`${API_URL}/youpoints`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ypPayload) }); }
+      if (data.data && data.prod_matricula) { const prodPayload = { data: data.data, matricula: data.prod_matricula, conectado: data.conectado, pct: data.pct }; if(data.prod_id) prodPayload.id = data.prod_id; await fetch(`${API_URL}/produtivo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prodPayload) }); }
+      if (data.ind_matricula) { const indPayload = { matricula: data.ind_matricula, colaborador: data.colaborador, atendidas: data.atendidas, quartil: data.quartil, csat: data.csat }; if(data.ind_id) indPayload.id = data.ind_id; await fetch(`${API_URL}/indicadores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(indPayload) }); }
+      if (data.bh_matricula || data.saldoNeg || data.saldoPos) { const bhPayload = { matricula: data.bh_matricula, colaborador: data.bh_colaborador, saldoNeg: data.saldoNeg, saldoPos: data.saldoPos }; if(data.bh_id) bhPayload.id = data.bh_id; await fetch(`${API_URL}/bh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bhPayload) }); }
+    }
+
+    await carregarDadosDoBanco();
+    closeModal();
+    toast('Salvo com sucesso!');
+  } catch (err) {
+    toast('Erro ao salvar.', true);
+  } finally {
+    btn.textContent = 'Salvar'; btn.disabled = false;
+    standardCtx = { table: null, id: null };
+    $$('#modalTabs').forEach(t => t.style.display = 'flex'); // Restaura abas
+  }
+};
+
+/* =================== MODAL CONFIGURAÇÕES GLOBAIS (APENAS APRESENTAÇÕES) =================== */
 $('#btnConfigGlobais').addEventListener('click', () => {
   if(!isAdmin) return;
-  
-  // Preenche os meses de ABS
-  const absHTML = DB.abs.map((r, i) => `
-    <div class="field">
-      <label>${r.mes}</label>
-      <input type="number" step="any" data-abs-id="${r.id}" data-abs-mes="${r.mes}" value="${r.abs}">
-    </div>
-  `).join('');
-  $('#configAbsGrid').innerHTML = absHTML;
-
-  // Preenche as apresentações
   const apresHTML = DB.apresentacoes.map(r => `
-    <div class="field">
-      <label>${r.indicador}</label>
-      <input type="text" data-apres-id="${r.id}" value="${r.valor}">
-    </div>
+    <div class="field"><label>${r.indicador}</label><input type="text" data-apres-id="${r.id}" value="${r.valor}"></div>
   `).join('');
   $('#configApresGrid').innerHTML = apresHTML;
-
   $('#modalConfigBack').classList.add('open');
 });
 
@@ -606,38 +701,20 @@ $('#modalConfigCancel').addEventListener('click', () => $('#modalConfigBack').cl
 $('#modalConfigSave').addEventListener('click', async () => {
   const btn = $('#modalConfigSave');
   btn.textContent = 'Salvando...'; btn.disabled = true;
-
   try {
-    // Salva ABS
-    const absInputs = $$('#configAbsGrid input');
-    for (let inp of absInputs) {
-      const id = inp.dataset.absId;
-      const mes = inp.dataset.absMes;
-      const val = inp.value === '' ? '' : Number(inp.value);
-      await fetch(`${API_URL}/abs`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, mes, abs: val })
-      });
-    }
-
-    // Salva Apresentações
     const apresInputs = $$('#configApresGrid input');
     for (let inp of apresInputs) {
       const id = inp.dataset.apresId;
       const val = inp.value;
-      await fetch(`${API_URL}/apresentacoes`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, valor: val })
-      });
+      await fetch(`${API_URL}/apresentacoes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, valor: val }) });
     }
-
     await carregarDadosDoBanco();
     $('#modalConfigBack').classList.remove('open');
-    toast('Configurações salvas!');
+    toast('Apresentações salvas!');
   } catch (err) {
-    toast('Erro ao salvar configurações.', true);
+    toast('Erro ao salvar.', true);
   } finally {
-    btn.textContent = 'Salvar Configurações'; btn.disabled = false;
+    btn.textContent = 'Salvar'; btn.disabled = false;
   }
 });
 
