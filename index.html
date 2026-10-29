@@ -30,8 +30,8 @@
   .btn-sm{padding:6px 12px;font-size:.78rem}
   .btn-danger{background:#fdecea;color:var(--warn)}
   .btn-ok{background:#e6f6ee;color:var(--ok)}
-  .btn-pdf{background:#fdecea;color:var(--warn)} /* Vermelho suave */
-  .btn-excel{background:#e6f6ee;color:var(--ok)} /* Verde suave */
+  .btn-pdf{background:#fdecea;color:var(--warn)}
+  .btn-excel{background:#e6f6ee;color:var(--ok)}
   .btn-pdf:hover, .btn-excel:hover{filter:brightness(0.95)}
   .layout{display:flex;min-height:calc(100vh - 70px)}
   nav.sidebar{width:250px;background:var(--card);border-right:1px solid var(--border);padding:18px 12px;flex-shrink:0;overflow-y:auto;}
@@ -66,7 +66,7 @@
   thead th{background:#eef4f9;color:var(--brand);text-align:left;padding:11px 12px;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;}
   tbody td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
   tbody tr:hover{background:#f7fbfe}
-  td.num{font-variant-numeric:tabular-nums;text-align:right}
+  td.num{font-variant-numeric:tabular-nums;text-align:right; font-weight: 500;}
   .neg{color:var(--warn);font-weight:600}
   .pos{color:var(--ok);font-weight:600}
   .star{cursor:pointer;font-size:1.2rem;color:#ccc;transition:.2s}
@@ -368,6 +368,55 @@ let isAdmin = false;
 let chartBar = null;
 let chartPie = null;
 
+/* =================== FUNÇÕES DE FORMATAÇÃO (A MÁGICA DOS DADOS) =================== */
+
+// Formata horas (aceita "8:30", "8,5", "8.5" e transforma em "08:30:00")
+const fmtHora = (v) => {
+  if (v === "" || v === null || v === undefined) return '—';
+  let str = String(v).replace(',', '.');
+  // Se já tem dois pontos (ex: 8:30), apenas adiciona os segundos se faltarem
+  if (str.includes(':')) {
+    const parts = str.split(':');
+    if (parts.length === 2) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:00`;
+    if (parts.length === 3) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:${parts[2].padStart(2,'0')}`;
+    return str;
+  }
+  // Se for número decimal (ex: 8.5 = 8 horas e meia)
+  const num = parseFloat(str);
+  if (isNaN(num)) return str;
+  const h = Math.floor(num);
+  const m = Math.round((num - h) * 60);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
+};
+
+// Formata porcentagens (aceita 0.95 ou 95 e transforma em "95,00%")
+const fmtPct = (v) => {
+  if (v === "" || v === null || v === undefined) return '—';
+  let num = parseFloat(String(v).replace(',', '.'));
+  if (isNaN(num)) return v;
+  if (num > 0 && num <= 1.5) num = num * 100; // Se for 0.95, vira 95
+  return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+};
+
+// Formata dinheiro (aceita 1500.5 e transforma em "R$ 1.500,50")
+const fmtReal = (v) => {
+  if (v === "" || v === null || v === undefined) return '—';
+  let str = String(v).replace('R$', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+  let num = parseFloat(str);
+  if (isNaN(num)) return v;
+  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
+// Formata números comuns (1.500)
+const fmtNum = (v) => {
+  if (v === "" || v === null || v === undefined) return '—';
+  let num = Number(String(v).replace(',', '.'));
+  if (isNaN(num)) return v;
+  return num.toLocaleString('pt-BR');
+};
+
+const safe = v => (v===""||v===null||v===undefined) ? '—' : v;
+
 /* =================== COMUNICAÇÃO COM A API =================== */
 async function carregarDadosDoBanco() {
     toast('Sincronizando com a nuvem...', false, true);
@@ -389,9 +438,6 @@ async function carregarDadosDoBanco() {
 
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const fmtPct = v => (v===""||v===null||v===undefined) ? '—' : (Number(v)*100).toFixed(2)+'%';
-const fmtNum = v => (v===""||v===null||v===undefined) ? '—' : Number(v).toLocaleString('pt-BR');
-const safe = v => (v===""||v===null||v===undefined) ? '—' : v;
 
 function toast(msg, err=false, loading=false){
   const t = $('#toast');
@@ -426,31 +472,19 @@ function renderRelatorioView(){
   const tbody = $('#tbody-relatorio');
   const kpi = $('#kpi-relatorio');
   
-  // MÁGICA AQUI: Une dados do cadastro, mas se o cadastro for apagado, usa os dados do Youpoints
   let colaboradores = [];
 
-  // 1. Adiciona todos os funcionários cadastrados
   DB.funcionarios.forEach(f => {
-    colaboradores.push({
-      nome: f.nome,
-      matricula: f.matricula || '—',
-      isFuncionario: true
-    });
+    colaboradores.push({ nome: f.nome, matricula: f.matricula || '—', isFuncionario: true });
   });
 
-  // 2. Junta com os dados de Youpoints (se não existir na lista, adiciona)
   DB.youpoints.forEach(yp => {
     const exists = colaboradores.find(c => c.nome.includes(yp.agente) || (c.matricula !== '—' && c.matricula === yp.matricula));
     if(!exists) {
-      colaboradores.push({
-        nome: yp.agente,
-        matricula: yp.matricula || '—',
-        isFuncionario: false
-      });
+      colaboradores.push({ nome: yp.agente, matricula: yp.matricula || '—', isFuncionario: false });
     }
   });
 
-  // 3. Enriquecer com as métricas
   colaboradores = colaboradores.map(c => {
     const nameMatch = c.nome.split(' ')[0]; 
     const yp = DB.youpoints.find(x => (c.matricula !== '—' && x.matricula === c.matricula) || (x.agente && x.agente.includes(nameMatch))) || {};
@@ -468,7 +502,6 @@ function renderRelatorioView(){
     };
   });
 
-  // Filtra para não mostrar duplicatas caso tenha o mesmo nome no cadastro e no youpoints
   colaboradores = colaboradores.filter((v,i,a)=>a.findIndex(t=>(t.nome === v.nome && t.matricula === v.matricula))===i);
 
   const totalColab = colaboradores.length;
@@ -479,20 +512,20 @@ function renderRelatorioView(){
   kpi.innerHTML = `
     <div class="kpi"><div class="label">Total de Colaboradores</div><div class="value">${totalColab}</div></div>
     <div class="kpi"><div class="label">Total de Atendimentos</div><div class="value">${fmtNum(totalAtendidas)}</div></div>
-    <div class="kpi ok"><div class="label">Média CSAT Geral</div><div class="value">${(mediaCsat*100).toFixed(1)}%</div></div>
-    <div class="kpi warn"><div class="label">Média Tempo Produtivo</div><div class="value">${(mediaProd*100).toFixed(1)}%</div></div>
+    <div class="kpi ok"><div class="label">Média CSAT Geral</div><div class="value">${fmtPct(mediaCsat)}</div></div>
+    <div class="kpi warn"><div class="label">Média Tempo Produtivo</div><div class="value">${fmtPct(mediaProd)}</div></div>
   `;
 
   tbody.innerHTML = colaboradores.map(c => `
     <tr>
       <td><strong>${c.nome}</strong></td>
       <td>${c.matricula}</td>
-      <td class="num">${fmtNum(c.logado)}</td>
-      <td class="num">${fmtNum(c.produtivo)}</td>
+      <td class="num">${fmtHora(c.logado)}</td>
+      <td class="num">${fmtHora(c.produtivo)}</td>
       <td class="num">${fmtNum(c.atendidas)}</td>
       <td class="num">${fmtPct(c.csat)}</td>
       <td class="num">${fmtPct(c.transf)}</td>
-      <td class="${c.saldoBh.includes('-') || c.saldoBh.includes('Neg') ? 'neg' : 'pos'}">${c.saldoBh}</td>
+      <td class="${c.saldoBh.includes('-') || c.saldoBh.includes('Neg') ? 'neg' : 'pos'}">${fmtHora(c.saldoBh)}</td>
     </tr>
   `).join('') || `<tr><td colspan="8" class="empty">Sem dados para gerar o relatório.</td></tr>`;
 
@@ -505,8 +538,15 @@ function renderCharts(dados) {
 
   const top10 = [...dados].sort((a,b) => b.atendidas - a.atendidas).slice(0, 10);
   const labels = top10.map(c => c.nome.split(' ')[0]);
-  const dataLogado = top10.map(c => (Number(c.logado) * 100).toFixed(1));
-  const dataProdutivo = top10.map(c => (Number(c.produtivo) * 100).toFixed(1));
+  // Converte para numérico (0-100) para o gráfico ficar correto
+  const dataLogado = top10.map(c => {
+      let n = Number(c.logado); 
+      return (n <= 1.5 ? n * 100 : n).toFixed(1);
+  });
+  const dataProdutivo = top10.map(c => {
+      let n = Number(c.produtivo); 
+      return (n <= 1.5 ? n * 100 : n).toFixed(1);
+  });
   const dataAtendidas = top10.map(c => c.atendidas);
 
   chartBar = new Chart($('#grafico-barras').getContext('2d'), {
@@ -559,13 +599,13 @@ function renderGerenciarView(){
     renderRow = (r) => `<td>${r.mes}</td><td>${safe(r.abs)}</td>`;
   } else if (tabela === 'youpoints') {
     colunas = ['Agente','ABS','T. Logado','T. Produtivo','Qualidade','Tabulação','Transf.'];
-    renderRow = (r) => `<td>${r.agente}</td><td>${fmtNum(r.abs)}</td><td>${fmtNum(r.logado)}</td><td>${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td>${fmtNum(r.tabulacao)}</td><td>${fmtNum(r.transf)}</td>`;
+    renderRow = (r) => `<td>${r.agente}</td><td>${fmtNum(r.abs)}</td><td>${fmtHora(r.logado)}</td><td>${fmtHora(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td>${fmtPct(r.tabulacao)}</td><td>${fmtPct(r.transf)}</td>`;
   } else if (tabela === 'produtivo') {
     colunas = ['Data','Matrícula','Conectado','% Prod'];
-    renderRow = (r) => `<td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td>${fmtPct(r.pct)}</td>`;
+    renderRow = (r) => `<td>${r.data}</td><td>${r.matricula}</td><td>${fmtHora(r.conectado)}</td><td>${fmtPct(r.pct)}</td>`;
   } else if (tabela === 'bh') {
     colunas = ['Matrícula','Colaborador','Saldo Neg','Saldo Pos'];
-    renderRow = (r) => `<td>${safe(r.matricula || r.matriculaPos)}</td><td>${safe(r.colaborador || r.colaboradorPos)}</td><td class="neg">${safe(r.saldoNeg)}</td><td class="pos">${safe(r.saldoPos)}</td>`;
+    renderRow = (r) => `<td>${safe(r.matricula || r.matriculaPos)}</td><td>${safe(r.colaborador || r.colaboradorPos)}</td><td class="neg">${fmtHora(r.saldoNeg)}</td><td class="pos">${fmtHora(r.saldoPos)}</td>`;
   } else if (tabela === 'indicadores') {
     colunas = ['Matrícula','Colaborador','Atendidas','Quartil','CSAT'];
     renderRow = (r) => `<td>${r.matricula}</td><td>${r.colaborador}</td><td>${fmtNum(r.atendidas)}</td><td>${safe(r.quartil)}</td><td>${fmtPct(r.csat)}</td>`;
@@ -610,7 +650,7 @@ function renderFuncionariosView(){
 }
 function renderYoupointsView(){
   $('#tbody-youpoints').innerHTML = DB.youpoints.map(r=>`
-    <tr><td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtNum(r.logado)}</td><td class="num">${fmtNum(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td class="num">${fmtNum(r.tabulacao)}</td><td class="num">${fmtNum(r.transf)}</td></tr>
+    <tr><td>${r.agente}</td><td class="num">${fmtNum(r.abs)}</td><td class="num">${fmtHora(r.logado)}</td><td class="num">${fmtHora(r.produtivo)}</td><td>${safe(r.qualidade)}</td><td class="num">${fmtPct(r.tabulacao)}</td><td class="num">${fmtPct(r.transf)}</td></tr>
   `).join('') || `<tr><td colspan="7" class="empty">Vazio.</td></tr>`;
 }
 function renderAbsView(){
@@ -618,12 +658,12 @@ function renderAbsView(){
 }
 function renderProdutivoView(){
   $('#tbody-produtivo').innerHTML = DB.produtivo.map(r=>`
-    <tr><td>${r.data}</td><td>${r.matricula}</td><td>${safe(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td><td>${safe(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${safe(r.ausente)}</td><td>${safe(r.intervalo)}</td><td>${safe(r.refeicao)}</td><td>${safe(r.reuniao)}</td><td>${safe(r.ocupado)}</td><td>${safe(r.treinamento)}</td><td>${safe(r.estouro)}</td><td>${safe(r.improd)}</td><td>${safe(r.prod)}</td><td class="num">${fmtPct(r.pct)}</td></tr>
+    <tr><td>${r.data}</td><td>${r.matricula}</td><td>${fmtHora(r.conectado)}</td><td class="num">${safe(r.contDisp)}</td><td>${fmtHora(r.disponivel)}</td><td class="num">${safe(r.contAusente)}</td><td>${fmtHora(r.ausente)}</td><td>${fmtHora(r.intervalo)}</td><td>${fmtHora(r.refeicao)}</td><td>${fmtHora(r.reuniao)}</td><td>${fmtHora(r.ocupado)}</td><td>${fmtHora(r.treinamento)}</td><td>${fmtHora(r.estouro)}</td><td>${fmtHora(r.improd)}</td><td>${fmtHora(r.prod)}</td><td class="num">${fmtPct(r.pct)}</td></tr>
   `).join('') || `<tr><td colspan="16" class="empty">Vazio.</td></tr>`;
 }
 function renderBhView(){
   $('#tbody-bh').innerHTML = DB.bh.map(r=>`
-    <tr><td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${safe(r.saldoNeg)}</td><td>${safe(r.prazo)}</td><td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${safe(r.saldoPos)}</td></tr>
+    <tr><td>${safe(r.matricula)}</td><td>${safe(r.colaborador)}</td><td class="neg">${fmtHora(r.saldoNeg)}</td><td>${safe(r.prazo)}</td><td>${safe(r.matriculaPos)}</td><td>${safe(r.colaboradorPos)}</td><td class="pos">${fmtHora(r.saldoPos)}</td></tr>
   `).join('') || `<tr><td colspan="7" class="empty">Vazio.</td></tr>`;
 }
 function renderIndicadoresView(){
@@ -668,14 +708,12 @@ function baixarExcel(tabelaId, nomeArquivo) {
   const tabela = document.getElementById(tabelaId);
   toast('Gerando Planilha Excel...', false, true);
   
-  // Clona a tabela para limpar a coluna de ações (se houver)
   const clone = tabela.cloneNode(true);
   const thAcoes = clone.querySelectorAll('.adm-only');
   thAcoes.forEach(th => th.remove());
   const tdAcoes = clone.querySelectorAll('td.adm-only');
   tdAcoes.forEach(td => td.remove());
 
-  // Converte a tabela HTML para uma planilha
   const wb = XLSX.utils.table_to_book(clone, { sheet: "Dados" });
   XLSX.writeFile(wb, `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`);
   
@@ -749,15 +787,15 @@ function openIntegratedModal(matricula, idFunc) {
       </div>
     </div>
     <div class="tab-content" id="tab-youpoints">
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints e o ABS individual.</p>
+      <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Preencha as métricas do Youpoints (Horas em HH:MM, % em 0.95 ou 95).</p>
       <div class="form-grid">
         ${fieldRow('Agente','agente',yp.agente || func.nome)}
         ${fieldRow('ABS Individual','abs',yp.abs,'number','step="any"')}
-        ${fieldRow('Tempo Logado','logado',yp.logado,'number','step="any"')}
-        ${fieldRow('Tempo Produtivo','produtivo',yp.produtivo,'number','step="any"')}
+        ${fieldRow('Tempo Logado','logado',yp.logado)}
+        ${fieldRow('Tempo Produtivo','produtivo',yp.produtivo)}
         ${fieldRow('Qualidade','qualidade',yp.qualidade)}
-        ${fieldRow('Tabulação N/A','tabulacao',yp.tabulacao,'number','step="any"')}
-        ${fieldRow('Transf. Pesquisa','transf',yp.transf,'number','step="any"')}
+        ${fieldRow('Tabulação N/A','tabulacao',yp.tabulacao)}
+        ${fieldRow('Transf. Pesquisa','transf',yp.transf)}
       </div>
       <input type="hidden" data-field="yp_id" value="${yp.id || ''}">
     </div>
@@ -767,7 +805,7 @@ function openIntegratedModal(matricula, idFunc) {
         ${fieldRow('Data','data',prod.data)}
         ${fieldRow('Matrícula','prod_matricula',prod.matricula || func.matricula)}
         ${fieldRow('Conectado','conectado',prod.conectado)}
-        ${fieldRow('% Produtivo','pct',prod.pct,'number','step="any"')}
+        ${fieldRow('% Produtivo','pct',prod.pct)}
       </div>
       <input type="hidden" data-field="prod_id" value="${prod.id || ''}">
     </div>
@@ -778,7 +816,7 @@ function openIntegratedModal(matricula, idFunc) {
         ${fieldRow('Colaborador','colaborador',ind.colaborador || func.nome)}
         ${fieldRow('Atendidas','atendidas',ind.atendidas,'number')}
         ${fieldRow('Quartil (Q1-Q4)','quartil',ind.quartil)}
-        ${fieldRow('CSAT (0 a 1)','csat',ind.csat,'number','step="any"')}
+        ${fieldRow('CSAT (0 a 1)','csat',ind.csat)}
       </div>
       <input type="hidden" data-field="ind_id" value="${ind.id || ''}">
     </div>
@@ -810,10 +848,10 @@ function openStandardModal(table, id) {
   
   let fieldsHTML = '';
   if (table === 'abs') fieldsHTML = `${fieldRow('Mês','mes',record.mes)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')}`;
-  else if (table === 'youpoints') fieldsHTML = `${fieldRow('Agente','agente',record.agente)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')} ${fieldRow('Logado','logado',record.logado,'number','step="any"')} ${fieldRow('Produtivo','produtivo',record.produtivo,'number','step="any"')} ${fieldRow('Qualidade','qualidade',record.qualidade)} ${fieldRow('Tabulação','tabulacao',record.tabulacao,'number','step="any"')} ${fieldRow('Transf.','transf',record.transf,'number','step="any"')}`;
-  else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data)} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct,'number','step="any"')}`;
+  else if (table === 'youpoints') fieldsHTML = `${fieldRow('Agente','agente',record.agente)} ${fieldRow('ABS','abs',record.abs)} ${fieldRow('Logado','logado',record.logado)} ${fieldRow('Produtivo','produtivo',record.produtivo)} ${fieldRow('Qualidade','qualidade',record.qualidade)} ${fieldRow('Tabulação','tabulacao',record.tabulacao)} ${fieldRow('Transf.','transf',record.transf)}`;
+  else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data)} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct)}`;
   else if (table === 'bh') fieldsHTML = `${fieldRow('Matrícula (Neg)','matricula',record.matricula)} ${fieldRow('Colaborador (Neg)','colaborador',record.colaborador)} ${fieldRow('Saldo Neg','saldoNeg',record.saldoNeg)} ${fieldRow('Matrícula (Pos)','matriculaPos',record.matriculaPos)} ${fieldRow('Colaborador (Pos)','colaboradorPos',record.colaboradorPos)} ${fieldRow('Saldo Pos','saldoPos',record.saldoPos)}`;
-  else if (table === 'indicadores') fieldsHTML = `${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Colaborador','colaborador',record.colaborador)} ${fieldRow('Atendidas','atendidas',record.atendidas,'number')} ${fieldRow('Quartil','quartil',record.quartil)} ${fieldRow('CSAT','csat',record.csat,'number','step="any"')}`;
+  else if (table === 'indicadores') fieldsHTML = `${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Colaborador','colaborador',record.colaborador)} ${fieldRow('Atendidas','atendidas',record.atendidas,'number')} ${fieldRow('Quartil','quartil',record.quartil)} ${fieldRow('CSAT','csat',record.csat)}`;
   else if (table === 'apresentacoes') fieldsHTML = `${fieldRow('Indicador','indicador',record.indicador)} ${fieldRow('Valor','valor',record.valor)}`;
 
   $('#modalTitle').textContent = (isNew?'Novo':'Editar') + ' — ' + table.toUpperCase();
