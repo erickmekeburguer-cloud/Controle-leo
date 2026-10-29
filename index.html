@@ -67,6 +67,23 @@
   .page-head p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
   .actions-top{display:flex;gap:8px}
   
+  /* QUADRO DE AVISOS */
+  .notice-board {
+    background: #fff9e6;
+    border: 1px solid #ffeeba;
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .notice-board h3 { margin: 0 0 8px 0; color: #856404; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .notice-board textarea {
+    width: 100%; border: 1px solid #ffeeba; border-radius: 6px; padding: 10px;
+    font-family: inherit; font-size: 0.9rem; background: #fffdf5; resize: vertical; min-height: 60px;
+  }
+  .notice-board textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
   .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
   .kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--brand-2);}
   .kpi .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
@@ -141,7 +158,6 @@
   </div>
   
   <div class="header-actions">
-    <!-- RELÓGIO E DATA AQUI -->
     <div class="datetime-box" title="Data e Hora Atual">
       <div class="date" id="current-date">Carregando...</div>
       <div class="time" id="current-time">00:00:00</div>
@@ -184,6 +200,13 @@
       </div>
       
       <div id="relatorio-container">
+        
+        <!-- QUADRO DE AVISOS RÁPIDOS -->
+        <div class="notice-board">
+          <h3>📌 Quadro de Avisos / Lembretes Rápidos</h3>
+          <textarea id="quick-notice" placeholder="Digite aqui avisos importantes para a equipe (salva automaticamente)..."></textarea>
+        </div>
+
         <div class="kpi-row" id="kpi-relatorio"></div>
         
         <div class="charts-row">
@@ -400,24 +423,27 @@ let chartPie = null;
 /* =================== MENSAGEM DE BOAS VINDAS =================== */
 window.onload = () => {
   setTimeout(() => {
-    // Alerta de boas-vindas
     alert("Bem-vindo, Leo Tyler! \n\nO sistema está sincronizando os dados com a nuvem...");
-    
-    // Abre o seletor de data do relógio para você ver o calendário
-    document.getElementById('current-date').click();
   }, 1000);
+  
+  // Carrega o quadro de avisos salvo
+  const savedNotice = localStorage.getItem('leo_quick_notice');
+  if(savedNotice) {
+    document.getElementById('quick-notice').value = savedNotice;
+  }
 };
+
+// Salva o quadro de avisos automaticamente enquanto digita
+document.getElementById('quick-notice').addEventListener('input', (e) => {
+  localStorage.setItem('leo_quick_notice', e.target.value);
+});
 
 /* =================== RELÓGIO E CALENDÁRIO =================== */
 function atualizarRelogio() {
   const agora = new Date();
-  
-  // Formatar Data (Ex: Segunda-feira, 23 de Outubro de 2026)
   const opcoesData = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   let dataFormatada = agora.toLocaleDateString('pt-BR', opcoesData);
   dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
-  
-  // Formatar Hora (Ex: 14:35:02)
   const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour12: false });
   
   document.getElementById('current-date').textContent = dataFormatada;
@@ -426,7 +452,6 @@ function atualizarRelogio() {
 setInterval(atualizarRelogio, 1000);
 atualizarRelogio(); 
 
-// Função para abrir o calendário nativo do navegador quando clicar no relógio
 document.querySelector('.datetime-box').addEventListener('click', () => {
   const inputData = document.createElement('input');
   inputData.type = 'date';
@@ -435,14 +460,9 @@ document.querySelector('.datetime-box').addEventListener('click', () => {
   inputData.style.opacity = '0';
   document.body.appendChild(inputData);
   
-  // Tenta abrir o calendário
-  if (inputData.showPicker) {
-    inputData.showPicker();
-  } else {
-    inputData.click();
-  }
+  if (inputData.showPicker) { inputData.showPicker(); } 
+  else { inputData.click(); }
   
-  // Remove depois de fechar
   inputData.addEventListener('change', () => {
     const dataEscolhida = new Date(inputData.value + 'T00:00:00');
     alert(`Você selecionou a data: ${dataEscolhida.toLocaleDateString('pt-BR')}`);
@@ -473,14 +493,6 @@ const fmtPct = (v) => {
   if (isNaN(num)) return v;
   if (num > 0 && num <= 1.5) num = num * 100;
   return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-};
-
-const fmtReal = (v) => {
-  if (v === "" || v === null || v === undefined) return '—';
-  let str = String(v).replace('R$', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-  let num = parseFloat(str);
-  if (isNaN(num)) return v;
-  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
 const fmtNum = (v) => {
@@ -951,7 +963,6 @@ function openStandardModal(table, id) {
   const record = isNew ? {} : DB[table].find(x=>x.id===id) || {};
   
   let fieldsHTML = '';
-  // Adicionei 'date' no campo de data para abrir o calendário
   if (table === 'abs') fieldsHTML = `${fieldRow('Mês','mes',record.mes)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')}`;
   else if (table === 'youpoints') fieldsHTML = `${fieldRow('Agente','agente',record.agente)} ${fieldRow('ABS','abs',record.abs)} ${fieldRow('Logado','logado',record.logado)} ${fieldRow('Produtivo','produtivo',record.produtivo)} ${fieldRow('Qualidade','qualidade',record.qualidade)} ${fieldRow('Tabulação','tabulacao',record.tabulacao)} ${fieldRow('Transf.','transf',record.transf)}`;
   else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data, 'date')} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct)}`;
