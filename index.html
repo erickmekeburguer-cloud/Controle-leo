@@ -18,11 +18,26 @@
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  
+  /* CABEÇALHO ATUALIZADO COM DATA */
   header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:42px;height:42px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand);font-size:18px;}
   .brand h1{font-size:1.15rem;margin:0;font-weight:700;}
-  .header-actions{display:flex;align-items:center;gap:10px}
+  .brand small{display:block;font-size:.72rem;opacity:.85;font-weight:400;margin-top:2px;}
+  .header-actions{display:flex;align-items:center;gap:15px}
+  
+  /* Estilo do Relógio */
+  .datetime-box {
+    background: rgba(0,0,0,0.2);
+    padding: 8px 15px;
+    border-radius: 8px;
+    text-align: right;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .datetime-box .date { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;}
+  .datetime-box .time { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums;}
+
   .btn{border:none;cursor:pointer;border-radius:8px;padding:9px 16px;font-size:.85rem;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:var(--accent);color:var(--brand)}
   .btn-ghost{background:rgba(255,255,255,.15);color:#fff}
@@ -107,6 +122,7 @@
     nav.sidebar button{justify-content:center;padding:12px 0}
     main.content{padding:18px 14px}
     .form-grid{grid-template-columns:1fr;}
+    .datetime-box{display: none;} /* Esconde o relógio no celular para não quebrar o layout */
   }
 </style>
 </head>
@@ -115,11 +131,21 @@
 <header>
   <div class="brand">
     <div class="logo">LEO</div>
-    <div><h1>EQUIPE LEO GERAL</h1><small>Painel de Indicadores · Nuvem</small></div>
+    <div>
+      <h1>EQUIPE LEO GERAL</h1>
+      <small>Painel de Indicadores · Nuvem</small>
+    </div>
   </div>
+  
   <div class="header-actions">
-    <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar Dados</button>
-    <button class="btn btn-primary btn-sm" id="btnConfigGlobais" style="display:none">⚙️ Configurações Globais</button>
+    <!-- RELÓGIO E DATA AQUI -->
+    <div class="datetime-box">
+      <div class="date" id="current-date">Carregando...</div>
+      <div class="time" id="current-time">00:00:00</div>
+    </div>
+
+    <button class="btn btn-ghost btn-sm" id="btnRefresh">↻ Atualizar</button>
+    <button class="btn btn-primary btn-sm" id="btnConfigGlobais" style="display:none">⚙️ Configurações</button>
     <button class="btn btn-primary btn-sm" id="btnLogin">🔒 Área ADM</button>
   </div>
 </header>
@@ -368,20 +394,36 @@ let isAdmin = false;
 let chartBar = null;
 let chartPie = null;
 
-/* =================== FUNÇÕES DE FORMATAÇÃO (A MÁGICA DOS DADOS) =================== */
+/* =================== RELÓGIO EM TEMPO REAL =================== */
+function atualizarRelogio() {
+  const agora = new Date();
+  
+  // Formatar Data (Ex: Segunda-feira, 23 de Outubro de 2026)
+  const opcoesData = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  let dataFormatada = agora.toLocaleDateString('pt-BR', opcoesData);
+  // Deixar a primeira letra maiúscula
+  dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+  
+  // Formatar Hora (Ex: 14:35:02)
+  const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour12: false });
+  
+  document.getElementById('current-date').textContent = dataFormatada;
+  document.getElementById('current-time').textContent = horaFormatada;
+}
+// Inicia o relógio e atualiza a cada 1 segundo (1000 ms)
+setInterval(atualizarRelogio, 1000);
+atualizarRelogio(); // Chama uma vez para não ficar "Carregando..."
 
-// Formata horas (aceita "8:30", "8,5", "8.5" e transforma em "08:30:00")
+/* =================== FUNÇÕES DE FORMATAÇÃO =================== */
 const fmtHora = (v) => {
   if (v === "" || v === null || v === undefined) return '—';
   let str = String(v).replace(',', '.');
-  // Se já tem dois pontos (ex: 8:30), apenas adiciona os segundos se faltarem
   if (str.includes(':')) {
     const parts = str.split(':');
     if (parts.length === 2) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:00`;
     if (parts.length === 3) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:${parts[2].padStart(2,'0')}`;
     return str;
   }
-  // Se for número decimal (ex: 8.5 = 8 horas e meia)
   const num = parseFloat(str);
   if (isNaN(num)) return str;
   const h = Math.floor(num);
@@ -389,16 +431,14 @@ const fmtHora = (v) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
 };
 
-// Formata porcentagens (aceita 0.95 ou 95 e transforma em "95,00%")
 const fmtPct = (v) => {
   if (v === "" || v === null || v === undefined) return '—';
   let num = parseFloat(String(v).replace(',', '.'));
   if (isNaN(num)) return v;
-  if (num > 0 && num <= 1.5) num = num * 100; // Se for 0.95, vira 95
+  if (num > 0 && num <= 1.5) num = num * 100;
   return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
 };
 
-// Formata dinheiro (aceita 1500.5 e transforma em "R$ 1.500,50")
 const fmtReal = (v) => {
   if (v === "" || v === null || v === undefined) return '—';
   let str = String(v).replace('R$', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
@@ -407,7 +447,6 @@ const fmtReal = (v) => {
   return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
-// Formata números comuns (1.500)
 const fmtNum = (v) => {
   if (v === "" || v === null || v === undefined) return '—';
   let num = Number(String(v).replace(',', '.'));
@@ -538,7 +577,6 @@ function renderCharts(dados) {
 
   const top10 = [...dados].sort((a,b) => b.atendidas - a.atendidas).slice(0, 10);
   const labels = top10.map(c => c.nome.split(' ')[0]);
-  // Converte para numérico (0-100) para o gráfico ficar correto
   const dataLogado = top10.map(c => {
       let n = Number(c.logado); 
       return (n <= 1.5 ? n * 100 : n).toFixed(1);
@@ -684,29 +722,10 @@ $('#mgmtAddBtn').addEventListener('click', () => {
   else openStandardModal(tabela, null);
 });
 
-/* =================== DOWNLOADS (PDF e EXCEL) =================== */
-function baixarPDF(tabelaId, nomeArquivo) {
-  const elemento = document.getElementById(tabelaId);
-  const clone = elemento.cloneNode(true);
-  clone.querySelectorAll('.adm-only').forEach(el => el.remove());
-  clone.querySelectorAll('td.adm-only').forEach(el => el.remove());
-  clone.style.background = '#fff'; clone.style.padding = '20px'; clone.style.boxShadow = 'none';
-  
-  const opt = { 
-    margin: 10, 
-    filename: `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`, 
-    html2canvas: { scale: 2, useCORS: true }, 
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
-  };
-  toast('Gerando PDF...', false, true);
-  setTimeout(() => {
-    html2pdf().set(opt).from(clone).save().then(() => toast('PDF baixado!')).catch(() => toast('Erro ao gerar PDF.', true));
-  }, 500);
-}
-
+/* =================== EXPORTAÇÃO EXCEL =================== */
 function baixarExcel(tabelaId, nomeArquivo) {
   const tabela = document.getElementById(tabelaId);
-  toast('Gerando Planilha Excel...', false, true);
+  toast('Gerando Planilha Profissional...', false, true);
   
   const clone = tabela.cloneNode(true);
   const thAcoes = clone.querySelectorAll('.adm-only');
@@ -714,10 +733,59 @@ function baixarExcel(tabelaId, nomeArquivo) {
   const tdAcoes = clone.querySelectorAll('td.adm-only');
   tdAcoes.forEach(td => td.remove());
 
-  const wb = XLSX.utils.table_to_book(clone, { sheet: "Dados" });
+  const ws = XLSX.utils.table_to_sheet(clone);
+  const jsonDados = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+  const wb = XLSX.utils.book_new();
+  const wsDados = XLSX.utils.aoa_to_sheet(jsonDados);
+  const wsFormatada = XLSX.utils.aoa_to_sheet(jsonDados);
+  
+  const wscols = jsonDados[0].map(() => ({ wch: 20 }));
+  wsDados['!cols'] = wscols;
+  wsFormatada['!cols'] = wscols;
+
+  XLSX.utils.book_append_sheet(wb, wsFormatada, "Visualização");
+  XLSX.utils.book_append_sheet(wb, wsDados, "Dados_Brutos");
+
   XLSX.writeFile(wb, `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`);
   
-  setTimeout(() => toast('Excel baixado!'), 500);
+  setTimeout(() => toast('Excel Profissional baixado!'), 500);
+}
+
+/* =================== EXPORTAÇÃO PDF =================== */
+function baixarPDF(tabelaId, nomeArquivo) {
+  const elemento = document.getElementById(tabelaId);
+  const clone = elemento.cloneNode(true);
+  clone.querySelectorAll('.adm-only').forEach(el => el.remove());
+  clone.querySelectorAll('td.adm-only').forEach(el => el.remove());
+  
+  const dataAtual = new Date().toLocaleString('pt-BR');
+  const headerHTML = `
+    <div style="background:#0f3d5e; color:white; padding:15px; margin-bottom:20px; border-radius:8px; text-align:center; font-family:'Segoe UI';">
+      <h1 style="margin:0; font-size:22px;">EQUIPE LEO GERAL</h1>
+      <p style="margin:5px 0 0 0; font-size:14px; opacity:0.8;">Relatório: ${nomeArquivo} | Gerado em: ${dataAtual}</p>
+    </div>
+  `;
+  
+  const containerFinal = document.createElement('div');
+  containerFinal.innerHTML = headerHTML;
+  containerFinal.appendChild(clone);
+  
+  containerFinal.style.background = '#fff';
+  containerFinal.style.padding = '30px';
+  containerFinal.style.fontFamily = "'Segoe UI', Arial, sans-serif";
+
+  const opt = { 
+    margin: 10, 
+    filename: `${nomeArquivo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`, 
+    html2canvas: { scale: 2, useCORS: true }, 
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
+  };
+  
+  toast('Gerando PDF...', false, true);
+  setTimeout(() => {
+    html2pdf().set(opt).from(containerFinal).save().then(() => toast('PDF baixado!')).catch(() => toast('Erro ao gerar PDF.', true));
+  }, 500);
 }
 
 /* =================== ADMIN =================== */
