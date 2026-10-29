@@ -19,7 +19,7 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
   
-  /* CABEÇALHO ATUALIZADO COM DATA */
+  /* CABEÇALHO */
   header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:42px;height:42px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand);font-size:18px;}
@@ -27,14 +27,17 @@
   .brand small{display:block;font-size:.72rem;opacity:.85;font-weight:400;margin-top:2px;}
   .header-actions{display:flex;align-items:center;gap:15px}
   
-  /* Estilo do Relógio */
+  /* Relógio e Data */
   .datetime-box {
     background: rgba(0,0,0,0.2);
     padding: 8px 15px;
     border-radius: 8px;
     text-align: right;
     border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: 0.2s;
   }
+  .datetime-box:hover { background: rgba(0,0,0,0.3); }
   .datetime-box .date { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;}
   .datetime-box .time { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums;}
 
@@ -122,7 +125,7 @@
     nav.sidebar button{justify-content:center;padding:12px 0}
     main.content{padding:18px 14px}
     .form-grid{grid-template-columns:1fr;}
-    .datetime-box{display: none;} /* Esconde o relógio no celular para não quebrar o layout */
+    .datetime-box{display: none;}
   }
 </style>
 </head>
@@ -139,7 +142,7 @@
   
   <div class="header-actions">
     <!-- RELÓGIO E DATA AQUI -->
-    <div class="datetime-box">
+    <div class="datetime-box" title="Data e Hora Atual">
       <div class="date" id="current-date">Carregando...</div>
       <div class="time" id="current-time">00:00:00</div>
     </div>
@@ -394,14 +397,24 @@ let isAdmin = false;
 let chartBar = null;
 let chartPie = null;
 
-/* =================== RELÓGIO EM TEMPO REAL =================== */
+/* =================== MENSAGEM DE BOAS VINDAS =================== */
+window.onload = () => {
+  setTimeout(() => {
+    // Alerta de boas-vindas
+    alert("Bem-vindo, Leo Tyler! \n\nO sistema está sincronizando os dados com a nuvem...");
+    
+    // Abre o seletor de data do relógio para você ver o calendário
+    document.getElementById('current-date').click();
+  }, 1000);
+};
+
+/* =================== RELÓGIO E CALENDÁRIO =================== */
 function atualizarRelogio() {
   const agora = new Date();
   
   // Formatar Data (Ex: Segunda-feira, 23 de Outubro de 2026)
   const opcoesData = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   let dataFormatada = agora.toLocaleDateString('pt-BR', opcoesData);
-  // Deixar a primeira letra maiúscula
   dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
   
   // Formatar Hora (Ex: 14:35:02)
@@ -410,9 +423,32 @@ function atualizarRelogio() {
   document.getElementById('current-date').textContent = dataFormatada;
   document.getElementById('current-time').textContent = horaFormatada;
 }
-// Inicia o relógio e atualiza a cada 1 segundo (1000 ms)
 setInterval(atualizarRelogio, 1000);
-atualizarRelogio(); // Chama uma vez para não ficar "Carregando..."
+atualizarRelogio(); 
+
+// Função para abrir o calendário nativo do navegador quando clicar no relógio
+document.querySelector('.datetime-box').addEventListener('click', () => {
+  const inputData = document.createElement('input');
+  inputData.type = 'date';
+  inputData.value = new Date().toISOString().split('T')[0];
+  inputData.style.position = 'absolute';
+  inputData.style.opacity = '0';
+  document.body.appendChild(inputData);
+  
+  // Tenta abrir o calendário
+  if (inputData.showPicker) {
+    inputData.showPicker();
+  } else {
+    inputData.click();
+  }
+  
+  // Remove depois de fechar
+  inputData.addEventListener('change', () => {
+    const dataEscolhida = new Date(inputData.value + 'T00:00:00');
+    alert(`Você selecionou a data: ${dataEscolhida.toLocaleDateString('pt-BR')}`);
+    document.body.removeChild(inputData);
+  });
+});
 
 /* =================== FUNÇÕES DE FORMATAÇÃO =================== */
 const fmtHora = (v) => {
@@ -870,7 +906,7 @@ function openIntegratedModal(matricula, idFunc) {
     <div class="tab-content" id="tab-produtivo">
       <p style="font-size:0.8rem; color:#666; margin-bottom:10px">Dados do dia.</p>
       <div class="form-grid">
-        ${fieldRow('Data','data',prod.data)}
+        ${fieldRow('Data','data',prod.data, 'date')}
         ${fieldRow('Matrícula','prod_matricula',prod.matricula || func.matricula)}
         ${fieldRow('Conectado','conectado',prod.conectado)}
         ${fieldRow('% Produtivo','pct',prod.pct)}
@@ -915,9 +951,10 @@ function openStandardModal(table, id) {
   const record = isNew ? {} : DB[table].find(x=>x.id===id) || {};
   
   let fieldsHTML = '';
+  // Adicionei 'date' no campo de data para abrir o calendário
   if (table === 'abs') fieldsHTML = `${fieldRow('Mês','mes',record.mes)} ${fieldRow('ABS','abs',record.abs,'number','step="any"')}`;
   else if (table === 'youpoints') fieldsHTML = `${fieldRow('Agente','agente',record.agente)} ${fieldRow('ABS','abs',record.abs)} ${fieldRow('Logado','logado',record.logado)} ${fieldRow('Produtivo','produtivo',record.produtivo)} ${fieldRow('Qualidade','qualidade',record.qualidade)} ${fieldRow('Tabulação','tabulacao',record.tabulacao)} ${fieldRow('Transf.','transf',record.transf)}`;
-  else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data)} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct)}`;
+  else if (table === 'produtivo') fieldsHTML = `${fieldRow('Data','data',record.data, 'date')} ${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Conectado','conectado',record.conectado)} ${fieldRow('% Produtivo','pct',record.pct)}`;
   else if (table === 'bh') fieldsHTML = `${fieldRow('Matrícula (Neg)','matricula',record.matricula)} ${fieldRow('Colaborador (Neg)','colaborador',record.colaborador)} ${fieldRow('Saldo Neg','saldoNeg',record.saldoNeg)} ${fieldRow('Matrícula (Pos)','matriculaPos',record.matriculaPos)} ${fieldRow('Colaborador (Pos)','colaboradorPos',record.colaboradorPos)} ${fieldRow('Saldo Pos','saldoPos',record.saldoPos)}`;
   else if (table === 'indicadores') fieldsHTML = `${fieldRow('Matrícula','matricula',record.matricula)} ${fieldRow('Colaborador','colaborador',record.colaborador)} ${fieldRow('Atendidas','atendidas',record.atendidas,'number')} ${fieldRow('Quartil','quartil',record.quartil)} ${fieldRow('CSAT','csat',record.csat)}`;
   else if (table === 'apresentacoes') fieldsHTML = `${fieldRow('Indicador','indicador',record.indicador)} ${fieldRow('Valor','valor',record.valor)}`;
